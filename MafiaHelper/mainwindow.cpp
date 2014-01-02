@@ -75,6 +75,9 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(warningButtons[i],SIGNAL(scored4warnings()),players[i],SLOT(die()));
     }
 
+    for (int i = 0; i < names.size() - 1; i++)
+        connect(names[i],SIGNAL(returnPressed()),names[i+1],SLOT(setFocus()));
+
 }
 
 MainWindow::~MainWindow()
@@ -97,7 +100,7 @@ void MainWindow::changeSpeaker()
     timer->stop();
     pause = true;
     ui->pushButton_11->setText("Start");
-    secondsLeft = 60;
+    secondsLeft = 59;
     ui->label_5->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Time left: %1</span></p>").arg(secondsLeft));
 
     currentSpeaker++;
@@ -140,7 +143,7 @@ void MainWindow::afterDay()
 
     if (!votes.empty() && votes.size() != 1)
     {
-        VoteDialog* d = new VoteDialog(&players,votes,this);
+        VoteDialog* d = new VoteDialog(players,votes,this);
         connect(d,SIGNAL(accepted()),this,SLOT(night()));
         d->show();
     }
@@ -157,7 +160,7 @@ void MainWindow::afterDay()
 
 void MainWindow::night()
 {
-    NightDialog *d = new NightDialog(&players,this);
+    NightDialog *d = new NightDialog(players,this);
     connect(d,SIGNAL(accepted()),this,SLOT(afterNight()));
     d->show();
 }
@@ -218,4 +221,24 @@ void MainWindow::on_actionHide_Show_Roles_triggered()
     for (int i = 0; i < rolesComboBoxes.size(); i++)
         rolesComboBoxes[i]->setVisible(visible);
     ui->rolesLabel->setVisible(visible);
+}
+
+void MainWindow::on_actionRestart_triggered()
+{
+    players.empty();
+    for (int i = 0; i < 10; i++)
+    {
+        votesComboBoxes[i]->setEnabled(true);
+        votesComboBoxes[i]->setCurrentIndex(0);
+        rolesComboBoxes[i]->setEnabled(true);
+        names[i]->setEnabled(true);
+        names[i]->clear();
+        warningButtons[i]->setEnabled(true);
+        warningButtons[i]->setText(QString("%1").arg(0));
+        players.push_back(new Player(rolesComboBoxes[i],votesComboBoxes[i],names[i],warningButtons[i], i + 1,this));
+    }
+    currentSpeaker = players.begin();
+
+    ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
+
 }

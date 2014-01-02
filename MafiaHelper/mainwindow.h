@@ -41,6 +41,7 @@ private slots:
     void minusSecond();
     void on_actionChange_Names_triggered();
     void on_actionHide_Show_Roles_triggered();
+    void on_actionRestart_triggered();
 };
 
 #endif // MAINWINDOW_H
