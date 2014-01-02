@@ -1,12 +1,13 @@
 #include "nightdialog.h"
 #include "ui_nightdialog.h"
-
-NightDialog::NightDialog(QWidget *parent) :
+#include "player.h"
+NightDialog::NightDialog(QList<Player*>* playersList, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::NightDialog)
 {
     ui->setupUi(this);
 
+    players = playersList;
     ui->comboBox->addItem("Milk");
     ui->comboBox->setFont(QFont("Times",22));
     for (int i=1;i<11;i++)
@@ -23,8 +24,8 @@ NightDialog::~NightDialog()
 
 void NightDialog::on_pushButton_clicked()
 {
-    QString player = ui->comboBox->currentText();
-    if (player!= "Milk") emit killed(player.toInt());
-    else emit killed(-1);
+
+    for(int i = 0; i < players->size(); i++)
+        if (players->at(i)->getNumber() == ui->comboBox->currentText().toInt()) players->at(i)->die();
     this->accept();
 }

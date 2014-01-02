@@ -16,12 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     nightdialog.cpp \
     votedialog.cpp \
-    warningbutton.cpp
+    warningbutton.cpp \
+    player.cpp
 
 HEADERS  += mainwindow.h \
     nightdialog.h \
     votedialog.h \
-    warningbutton.h
+    warningbutton.h \
+    player.h
 
 FORMS    += mainwindow.ui \
     nightdialog.ui \

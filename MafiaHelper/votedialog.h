@@ -7,20 +7,22 @@ namespace Ui {
 class VoteDialog;
 }
 class QComboBox;
+class Player;
 class VoteDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit VoteDialog(QList<int> votes,int playerNumber,QWidget *parent = 0);
+    explicit VoteDialog(QList<Player *>* allPlayers, QList<int> ePlayers, QWidget *parent = 0);
     ~VoteDialog();
 
 private:
     Ui::VoteDialog *ui;
-    QList<int> votesList;
-    QStringList players;
     QList<QComboBox*> comboBoxes;
     QPair<int,int> condemned;
+    QList<Player*>* players;
+    QStringList numberOfPlayers; //rename, please, I want to sleep.
+    QList<int> exposedPlayers;
 signals:
     void killed(int);
     void revoting(QList<int>);
