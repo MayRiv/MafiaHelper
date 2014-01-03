@@ -32,7 +32,8 @@ private:
     int secondsLeft;
     bool pause;
 private slots:
-   QList<Player*> shift(QList<Player*> l);
+    QList<Player*> shift(QList<Player*> l);
+    void on_votebox_item_change(QString item);
     void changeSpeaker();
     void on_pushButton_11_clicked();
     void afterDay();

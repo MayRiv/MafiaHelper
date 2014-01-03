@@ -49,6 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
         for (int j=0;j<10;j++)
             votesComboBoxes.back()->setItemData(j,Qt::AlignHCenter, Qt::TextAlignmentRole);
 
+        connect(votesComboBoxes.back(),SIGNAL(currentTextChanged(QString)),this,SLOT(on_votebox_item_change(QString)));
+
         warningButtons.push_back(new WarningButton);
         warningButtons.back()->setMinimumHeight(100);
         warningButtons.back()->setMinimumWidth(100);
@@ -93,6 +95,27 @@ QList<Player*> MainWindow::shift(QList<Player*> l)
     temp.removeFirst();
     temp.push_back(t);
     return temp;
+}
+
+void MainWindow::on_votebox_item_change(QString item)
+{
+
+    avaibleForVote.removeOne(item);
+
+    for (int i = 0; i < votesComboBoxes.size(); i++)
+        if (votesComboBoxes[i]->currentText() != item)
+        {
+            votesComboBoxes[i]->blockSignals(true);
+            QString currentText = votesComboBoxes[i]->currentText();
+
+            votesComboBoxes[i]->clear();
+            votesComboBoxes[i]->addItems(avaibleForVote);
+            votesComboBoxes[i]->addItem(currentText);
+            votesComboBoxes[i]->setCurrentText(currentText);
+            votesComboBoxes[i]->blockSignals(false);
+
+        }
+
 }
 void MainWindow::changeSpeaker()
 {
