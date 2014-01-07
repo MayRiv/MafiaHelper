@@ -12,7 +12,6 @@ VoteDialog::VoteDialog(QList<Player *> allPlayers, QList<int> ePlayers, QWidget 
 {
     ui->setupUi(this);
     this->setModal(true);
-
     QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::LeftMouseButtonGesture );
 
     exposedPlayers = ePlayers;
@@ -26,7 +25,7 @@ VoteDialog::VoteDialog(QList<Player *> allPlayers, QList<int> ePlayers, QWidget 
     {
 
         QLabel* label = new QLabel(this);
-        label->setText(QString("Voting for %1 player").arg(exposedPlayers[i]));
+        label->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Voting for %1 player</span></p></body></html>").arg(exposedPlayers[i]));
         comboBoxes.push_back(new QComboBox(this));
         comboBoxes.back()->setMinimumHeight(100);
         comboBoxes.back()->setMinimumWidth(100);
@@ -51,18 +50,31 @@ VoteDialog::~VoteDialog()
 
 void VoteDialog::voting(QString number)
 {
-    if (number.isEmpty() || number == "0") return;
-    int n = number.toInt();
-    QStringList newList;
-    for (int i=0; i < numberOfPlayers.size() - n; i++)
-        newList.push_back(numberOfPlayers[i]);
-    numberOfPlayers = newList;
-    for (int i=0; i < comboBoxes.size();i++)
-        if (comboBoxes[i]->currentText().toInt() == 0)
+    int maxVotes = 10;
+    for (int i = 0; i < comboBoxes.size(); i++)
+        maxVotes-= comboBoxes[i]->currentText().toInt();
+    numberOfPlayers.clear();
+    for (int i = 0; i <= maxVotes; i++)
+        numberOfPlayers.push_back(QString("%1").arg(i));
+
+    for (int i=0; i < comboBoxes.size(); i++)
+    {
+        comboBoxes[i]->blockSignals(true);
+        QString currentNumber = comboBoxes[i]->currentText();
+        comboBoxes[i]->clear();
+        if (currentNumber.toInt() > maxVotes)
         {
-            comboBoxes[i]->clear();
-            comboBoxes[i]->addItems(numberOfPlayers);
+            QStringList temp;
+            for (int i = 0; i <= currentNumber.toInt(); i++)
+                temp.push_back(QString("%1").arg(i));
+
+            comboBoxes[i]->addItems(temp);
         }
+        else comboBoxes[i]->addItems(numberOfPlayers);
+        comboBoxes[i]->setCurrentText(currentNumber);
+        comboBoxes[i]->blockSignals(false);
+
+    }
 }
 void VoteDialog::calculate()
 {
@@ -85,4 +97,11 @@ void VoteDialog::on_pushButtonAccept_clicked()
     for (int i = 0; i < players.size(); i++)
         if (players.at(i)->getNumber() == condemned.first) players.at(i)->die();
     this->accept();
+}
+
+void VoteDialog::on_pushButtonClear_clicked()
+{
+    for (int i = 0; i < comboBoxes.size(); i++)
+        comboBoxes[i]->setCurrentText(QString("%1").arg(0));
+    ui->labelResult->clear();
 }

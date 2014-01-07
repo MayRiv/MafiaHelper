@@ -30,6 +30,7 @@ private slots:
     void voting(QString number);
     void calculate();
     void on_pushButtonAccept_clicked();
+    void on_pushButtonClear_clicked();
 };
 
 #endif // VOTEDIALOG_H
