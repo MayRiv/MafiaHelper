@@ -25,7 +25,7 @@ VoteDialog::VoteDialog(QList<Player *> allPlayers, QList<int> ePlayers, QWidget 
     {
 
         QLabel* label = new QLabel(this);
-        label->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Voting for %1 player</span></p></body></html>").arg(exposedPlayers[i]));
+        label->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">For %1 player</span></p></body></html>").arg(exposedPlayers[i]));
         comboBoxes.push_back(new QComboBox(this));
         comboBoxes.back()->setMinimumHeight(100);
         comboBoxes.back()->setMinimumWidth(100);

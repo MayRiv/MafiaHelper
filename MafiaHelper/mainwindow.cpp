@@ -230,6 +230,7 @@ void MainWindow::night()
     connect(d,SIGNAL(accepted()),this,SLOT(afterNight()));
     //d->show();
     d->showFullScreen();
+    ui->label_3->sizePolicy();
 }
 
 void MainWindow::afterNight()
