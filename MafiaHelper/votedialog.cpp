@@ -6,6 +6,7 @@
 #include <QPair>
 #include "player.h"
 #include <QScroller>
+#include <qalgorithms.h>
 VoteDialog::VoteDialog(QList<Player *> allPlayers, QList<int> ePlayers, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::VoteDialog)
@@ -14,6 +15,8 @@ VoteDialog::VoteDialog(QList<Player *> allPlayers, QList<int> ePlayers, QWidget 
     this->setModal(true);
     QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::LeftMouseButtonGesture );
 
+    needRevoting = false;
+    condemned.resize(ePlayers.size());
     exposedPlayers = ePlayers;
     players = allPlayers;
 
@@ -78,24 +81,52 @@ void VoteDialog::voting(QString number)
 }
 void VoteDialog::calculate()
 {
+    for (int i = 0; i < comboBoxes.size(); i++)
+    {
+        condemned[i].first = exposedPlayers[i];
+        condemned[i].second = comboBoxes[i]->currentText().toInt();
+    }
 
-    condemned.first = exposedPlayers[0];
-    condemned.second = comboBoxes[0]->currentText().toInt();
-    for(int i = 1; i < comboBoxes.size(); i++)
-        if (comboBoxes[i]->currentText().toInt() > condemned.second) {
-            condemned.first = exposedPlayers[i];
-            condemned.second = comboBoxes[i]->currentText().toInt();
-        }
+    for (int i = 0; i < condemned.size() - 1; i++)
+        for (int j = 1; j < condemned.size(); j++)
+            if (condemned[i].second < condemned[j].second)
+            {
+               QPair<int,int> temp = condemned[i];
+               condemned[i] = condemned[j];
+               condemned[j] = temp;
+            }
 
-    ui->labelResult->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player has been condemned with %2 votes</span></p></body></html>").arg(condemned.first).arg(condemned.second));
+    int playersWithEqualNumberOfVotes = 1;
+    int higthScoreOfVoting = condemned[0].second;
+    for (int i = 1; i < condemned.size() && condemned[i].second == higthScoreOfVoting; i++, playersWithEqualNumberOfVotes++)
+    {}
+    if (playersWithEqualNumberOfVotes == 1)
+        ui->labelResult->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player has been condemned with %2 votes</span></p></body></html>").arg(condemned[0].first).arg(condemned[0].second));
+    else
+    {
+        ui->labelResult->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Several players have got the same votes. The city should revote.</span></p></body></html>"));
+        needRevoting = true;
+    }
     ui->pushButtonAccept->setEnabled(true);
+
 }
 
 void VoteDialog::on_pushButtonAccept_clicked()
 {
-
-    for (int i = 0; i < players.size(); i++)
-        if (players.at(i)->getNumber() == condemned.first) players.at(i)->die();
+    if (needRevoting)
+    {
+        QList<int> playersForRevoting;
+        playersForRevoting.push_back(condemned[0].first);
+        for (int i = 1; i < condemned.size() && condemned[i].second == condemned[0].second; i++)
+            playersForRevoting.push_back(condemned[i].first);
+        emit revoting(playersForRevoting);
+    }
+    else
+    {
+        for (int i = 0; i < players.size(); i++)
+            if (players.at(i)->getNumber() == condemned[0].first) players.at(i)->die();
+        emit killed();
+    }
     this->accept();
 }
 

@@ -122,6 +122,7 @@ void MainWindow::on_votebox_item_change(QString item)
 
 }
 
+
 void MainWindow::on_rolebox_item_change(QString item)
 {
     int mafiaCount   = 2;
@@ -159,9 +160,9 @@ void MainWindow::on_rolebox_item_change(QString item)
             rolesComboBoxes[i]->blockSignals(false);
         }
 }
+
 void MainWindow::changeSpeaker()
 {
-    *currentSpeaker;
     timer->stop();
     pause = true;
     ui->pushButton_11->setText("Start");
@@ -178,9 +179,11 @@ void MainWindow::changeSpeaker()
     }
     else
     {
+        emit lastPlayerEnded();
         afterDay();
     }
 }
+
 
 void MainWindow::on_pushButton_11_clicked()
 {
@@ -197,6 +200,7 @@ void MainWindow::on_pushButton_11_clicked()
     }
 }
 
+
 void MainWindow::afterDay()
 {
     QList<int> votes;
@@ -209,8 +213,8 @@ void MainWindow::afterDay()
     if (!votes.empty() && votes.size() != 1)
     {
         VoteDialog* d = new VoteDialog(players,votes,this);
-        connect(d,SIGNAL(accepted()),this,SLOT(night()));
-        //d->show();
+        connect(d,SIGNAL(killed()),this,SLOT(night()));
+        connect(d,SIGNAL(revoting(QList<int>)),this,SLOT(revote(QList<int>)));
         d->showFullScreen();
     }
     else
@@ -224,14 +228,14 @@ void MainWindow::afterDay()
     }
 }
 
+
 void MainWindow::night()
 {
     NightDialog *d = new NightDialog(players,this);
     connect(d,SIGNAL(accepted()),this,SLOT(afterNight()));
-    //d->show();
     d->showFullScreen();
-    ui->label_3->sizePolicy();
 }
+
 
 void MainWindow::afterNight()
 {
@@ -259,6 +263,7 @@ void MainWindow::afterNight()
     }
 }
 
+
 void MainWindow::minusSecond()
 {
     secondsLeft--;
@@ -266,6 +271,7 @@ void MainWindow::minusSecond()
     if (secondsLeft == 0)
         changeSpeaker();
 }
+
 
 
 void MainWindow::on_actionChange_Names_triggered()
@@ -287,6 +293,7 @@ void MainWindow::on_actionChange_Names_triggered()
 
 }
 
+
 void MainWindow::on_actionHide_Show_Roles_triggered()
 {
     bool visible;
@@ -304,6 +311,7 @@ void MainWindow::on_actionHide_Show_Roles_triggered()
         rolesComboBoxes[i]->setVisible(visible);
     ui->rolesLabel->setVisible(visible);
 }
+
 
 void MainWindow::on_actionRestart_triggered()
 {
@@ -323,4 +331,37 @@ void MainWindow::on_actionRestart_triggered()
 
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
 
+}
+
+void MainWindow::switch_revotinglist_and_players()
+{
+    QList<Player*> temp = players;
+    players = revotingPlayers;
+    revotingPlayers = temp;
+    disconnect(this,SIGNAL(lastPlayerEnded()),this,SLOT(switch_revotinglist_and_players()));
+}
+
+void MainWindow::revote(QList<int> rList)
+{
+    for (int i = 0; i < rList.size(); i++)
+        revotingPlayers.push_back(getPlayerByNumber(rList[i]));
+    switch_revotinglist_and_players();
+
+    for( int i = 0; i < votesComboBoxes.size(); i++)
+        votesComboBoxes[i]->setEnabled(false);
+
+    //TO DO set comboboxes of condemned to each other pointer.
+    currentSpeaker = players.begin();
+    connect(this,SIGNAL(lastPlayerEnded()),this,SLOT(switch_revotinglist_and_players()));
+
+    ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
+
+}
+
+Player *MainWindow::getPlayerByNumber(int number)
+{
+    for (int i = 0; i < players.size(); i++)
+        if (players[i]->getNumber() == number) return players[i];
+    for( int i = 0; i < votesComboBoxes.size(); i++)
+        votesComboBoxes[i]->setEnabled(true);
 }

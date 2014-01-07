@@ -16,7 +16,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
+signals:
+    void lastPlayerEnded();
 private:
     QStringList avaibleRoles;
     QStringList avaibleForVote;
@@ -24,6 +25,7 @@ private:
     QList<QComboBox*> votesComboBoxes;
     QList<WarningButton*> warningButtons;
     QList<Player*> players;
+    QList<Player*> revotingPlayers;
     QList<Player*>::iterator currentSpeaker;
     QList<QLineEdit*> names;
     Ui::MainWindow *ui;
@@ -44,6 +46,9 @@ private slots:
     void on_actionChange_Names_triggered();
     void on_actionHide_Show_Roles_triggered();
     void on_actionRestart_triggered();
+    void switch_revotinglist_and_players();
+    void revote(QList<int>);
+    Player* getPlayerByNumber(int number);
 };
 
 #endif // MAINWINDOW_H

@@ -19,12 +19,13 @@ public:
 private:
     Ui::VoteDialog *ui;
     QList<QComboBox*> comboBoxes;
-    QPair<int,int> condemned;
+    QVector<QPair<int,int> > condemned;
     QList<Player*> players;
     QStringList numberOfPlayers; //rename, please, I want to sleep.
     QList<int> exposedPlayers;
+    bool needRevoting;
 signals:
-    void killed(int);
+    void killed();
     void revoting(QList<int>);
 private slots:
     void voting(QString number);
