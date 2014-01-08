@@ -124,8 +124,11 @@ void VoteDialog::on_pushButtonAccept_clicked()
     else
     {
         for (int i = 0; i < players.size(); i++)
-            if (players.at(i)->getNumber() == condemned[0].first) players.at(i)->die();
-        emit killed();
+            if (players.at(i)->getNumber() == condemned[0].first)
+            {
+                players.at(i)->die();
+                emit killed(players.at(i)->getNumber());
+            }
     }
     this->accept();
 }

@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timer = new QTimer(this);
     timer->setInterval(1000);
     connect(timer,SIGNAL(timeout()),this,SLOT(minusSecond()));
+    connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
 
     avaibleRoles.push_back("");
     avaibleRoles.push_back("Citizen");
@@ -71,7 +72,6 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     currentSpeaker = players.begin();
 
-    connect(ui->pushButton_15,SIGNAL(clicked()),this,SLOT(changeSpeaker()));
 
     for (int i = 0; i < players.size(); i++)
     {
@@ -179,7 +179,7 @@ void MainWindow::changeSpeaker()
     }
     else
     {
-        emit lastPlayerEnded();
+        //emit lastPlayerEnded();
         afterDay();
     }
 }
@@ -213,7 +213,7 @@ void MainWindow::afterDay()
     if (!votes.empty() && votes.size() != 1)
     {
         VoteDialog* d = new VoteDialog(players,votes,this);
-        connect(d,SIGNAL(killed()),this,SLOT(night()));
+        connect(d,SIGNAL(killed(int)),this,SLOT(lastWordAfterDay(int)));
         connect(d,SIGNAL(revoting(QList<int>)),this,SLOT(revote(QList<int>)));
         d->showFullScreen();
     }
@@ -222,23 +222,38 @@ void MainWindow::afterDay()
         if (votes.size() == 1)
         {
             for (int i = 0; i < players.size(); i++)
-                if (players.at(i)->getNumber() == votes.first()) players.at(i)->die();
+                if (players.at(i)->getNumber() == votes.first())
+                {
+                    players.at(i)->die();
+                    lastWordAfterDay(players.at(i)->getNumber());
+                }
         }
-        night();
+        else
+        {
+            disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+            night();
+
+        }
     }
 }
 
 
 void MainWindow::night()
 {
+    connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+    disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(night()));
+
     NightDialog *d = new NightDialog(players,this);
-    connect(d,SIGNAL(accepted()),this,SLOT(afterNight()));
+    connect(d, SIGNAL(killed(int)),this,SLOT(lastWordAfterNight(int)));
     d->showFullScreen();
 }
 
 
 void MainWindow::afterNight()
 {
+    connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+    disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(afterNight()));
+
     players = shift(players);
 
     currentSpeaker=players.begin();
@@ -269,7 +284,8 @@ void MainWindow::minusSecond()
     secondsLeft--;
     ui->label_5->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Time left: %1</span></p>").arg(secondsLeft));
     if (secondsLeft == 0)
-        changeSpeaker();
+       // changeSpeaker();
+        emit timeIsLeft();
 }
 
 
@@ -360,8 +376,41 @@ void MainWindow::revote(QList<int> rList)
 
 Player *MainWindow::getPlayerByNumber(int number)
 {
-    for (int i = 0; i < players.size(); i++)
-        if (players[i]->getNumber() == number) return players[i];
     for( int i = 0; i < votesComboBoxes.size(); i++)
         votesComboBoxes[i]->setEnabled(true);
+    for (int i = 0; i < players.size(); i++)
+        if (players[i]->getNumber() == number) return players[i];
+}
+
+void MainWindow::lastWordAfterDay(int player)
+{
+    disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+    connect(this,SIGNAL(timeIsLeft()),this,SLOT(night()));
+
+    secondsLeft = 59;
+    ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(player));
+
+}
+
+void MainWindow::lastWordAfterNight(int player)
+{
+    if (player != -1)
+    {
+        disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+        connect(this,SIGNAL(timeIsLeft()),this,SLOT(afterNight()));
+        secondsLeft = 59;
+        ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(player));
+    }
+    else
+    {
+        afterNight();
+        disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+        connect(this,SIGNAL(timeIsLeft()),this,SLOT(afterNight()));
+    }
+}
+
+
+void MainWindow::on_pushButton_15_clicked()
+{
+    emit timeIsLeft();
 }

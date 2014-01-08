@@ -25,7 +25,7 @@ private:
     QList<int> exposedPlayers;
     bool needRevoting;
 signals:
-    void killed();
+    void killed(int);
     void revoting(QList<int>);
 private slots:
     void voting(QString number);

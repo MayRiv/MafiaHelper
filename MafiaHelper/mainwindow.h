@@ -18,6 +18,7 @@ public:
     ~MainWindow();
 signals:
     void lastPlayerEnded();
+    void timeIsLeft();
 private:
     QStringList avaibleRoles;
     QStringList avaibleForVote;
@@ -49,6 +50,9 @@ private slots:
     void switch_revotinglist_and_players();
     void revote(QList<int>);
     Player* getPlayerByNumber(int number);
+    void on_pushButton_15_clicked();
+    void lastWordAfterDay(int);
+    void lastWordAfterNight(int);
 };
 
 #endif // MAINWINDOW_H

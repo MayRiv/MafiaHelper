@@ -26,6 +26,13 @@ void NightDialog::on_pushButton_clicked()
 {
 
     for(int i = 0; i < players.size(); i++)
-        if (players.at(i)->getNumber() == ui->comboBox->currentText().toInt()) players.at(i)->die();
+        if (players.at(i)->getNumber() == ui->comboBox->currentText().toInt())
+        {
+            players.at(i)->die();
+            emit killed(players.at(i)->getNumber());
+            this->accept();
+            return;
+        }
+    emit killed(-1);
     this->accept();
 }
