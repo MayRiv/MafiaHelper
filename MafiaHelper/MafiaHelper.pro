@@ -17,17 +17,20 @@ SOURCES += main.cpp\
     nightdialog.cpp \
     votedialog.cpp \
     warningbutton.cpp \
-    player.cpp
+    player.cpp \
+    killallrevoting.cpp
 
 HEADERS  += mainwindow.h \
     nightdialog.h \
     votedialog.h \
     warningbutton.h \
-    player.h
+    player.h \
+    killallrevoting.h
 
 FORMS    += mainwindow.ui \
     nightdialog.ui \
-    votedialog.ui
+    votedialog.ui \
+    killallrevoting.ui
 
 CONFIG += mobility
 MOBILITY = 

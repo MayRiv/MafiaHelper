@@ -8,6 +8,7 @@ class VoteDialog;
 }
 class QComboBox;
 class Player;
+class MainWindow;
 class VoteDialog : public QDialog
 {
     Q_OBJECT
@@ -15,8 +16,8 @@ class VoteDialog : public QDialog
 public:
     explicit VoteDialog(QList<Player *> allPlayers, QList<int> ePlayers, QWidget *parent = 0);
     ~VoteDialog();
-
 private:
+    MainWindow* parent;
     Ui::VoteDialog *ui;
     QList<QComboBox*> comboBoxes;
     QVector<QPair<int,int> > condemned;
@@ -24,6 +25,7 @@ private:
     QStringList numberOfPlayers; //rename, please, I want to sleep.
     QList<int> exposedPlayers;
     bool needRevoting;
+
 signals:
     void killed(int);
     void revoting(QList<int>);
@@ -32,6 +34,9 @@ private slots:
     void calculate();
     void on_pushButtonAccept_clicked();
     void on_pushButtonClear_clicked();
+    void killThemAll();
+    void leaveThemAlive();
+    void changeEnabled();
 };
 
 #endif // VOTEDIALOG_H

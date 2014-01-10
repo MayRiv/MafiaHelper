@@ -5,12 +5,14 @@
 #include <QDebug>
 #include <QPair>
 #include "player.h"
+#include "killallrevoting.h"
 #include <QScroller>
 #include <qalgorithms.h>
 VoteDialog::VoteDialog(QList<Player *> allPlayers, QList<int> ePlayers, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::VoteDialog)
 {
+
     ui->setupUi(this);
     this->setModal(true);
     QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::LeftMouseButtonGesture );
@@ -20,10 +22,14 @@ VoteDialog::VoteDialog(QList<Player *> allPlayers, QList<int> ePlayers, QWidget 
     exposedPlayers = ePlayers;
     players = allPlayers;
 
-    for (int i=0; i < players.size();i++)
-        if (players.at(i)->isAlive)
-            numberOfPlayers.push_back(QString("%1").arg(i));
-    numberOfPlayers.push_back(QString("%1").arg(numberOfPlayers.size()));
+    int maxVotes = 0;
+    for (int i = 0; i <  players.size(); i++)
+        if (players[i]->isAlive) maxVotes++;
+
+    for (int i=0; i <= maxVotes;i++)
+       numberOfPlayers.push_back(QString("%1").arg(i));
+
+
     for (int i = 0; i < exposedPlayers.size(); i++)
     {
 
@@ -41,7 +47,11 @@ VoteDialog::VoteDialog(QList<Player *> allPlayers, QList<int> ePlayers, QWidget 
         ui->labelsLayout->addWidget(label);
     }
 
-
+    for (int i =0; i < comboBoxes.size() - 1; i++)
+    {
+        connect(comboBoxes[i],SIGNAL(currentIndexChanged(int)),this,SLOT(changeEnabled()));
+        comboBoxes[i + 1]->setEnabled(false);
+    }
     connect(comboBoxes.back(),SIGNAL(currentIndexChanged(QString)),this,SLOT(calculate()));
 
 }
@@ -53,7 +63,10 @@ VoteDialog::~VoteDialog()
 
 void VoteDialog::voting(QString number)
 {
-    int maxVotes = 10;
+    int maxVotes = 0;
+    for (int i = 0; i <  players.size(); i++)
+        if (players[i]->isAlive) maxVotes++;
+
     for (int i = 0; i < comboBoxes.size(); i++)
         maxVotes-= comboBoxes[i]->currentText().toInt();
     numberOfPlayers.clear();
@@ -113,16 +126,31 @@ void VoteDialog::calculate()
 
 void VoteDialog::on_pushButtonAccept_clicked()
 {
+    static bool wasRevoting = false;
     if (needRevoting)
     {
-        QList<int> playersForRevoting;
-        playersForRevoting.push_back(condemned[0].first);
-        for (int i = 1; i < condemned.size() && condemned[i].second == condemned[0].second; i++)
-            playersForRevoting.push_back(condemned[i].first);
-        emit revoting(playersForRevoting);
+
+        if (!wasRevoting)
+        {
+            wasRevoting = true;
+            QList<int> playersForRevoting;
+            playersForRevoting.push_back(condemned[0].first);
+            for (int i = 1; i < condemned.size() && condemned[i].second == condemned[0].second; i++)
+                playersForRevoting.push_back(condemned[i].first);
+            emit revoting(playersForRevoting);
+        }
+        else
+        {
+            wasRevoting = false;
+            KillAllRevoting* d = new KillAllRevoting();
+            connect(d,SIGNAL(accepted()),this,SLOT(killThemAll()));
+            connect(d,SIGNAL(rejected()),this,SLOT(leaveThemAlive()));
+            d->showFullScreen();
+        }
     }
     else
     {
+        wasRevoting = false;
         for (int i = 0; i < players.size(); i++)
             if (players.at(i)->getNumber() == condemned[0].first)
             {
@@ -138,4 +166,29 @@ void VoteDialog::on_pushButtonClear_clicked()
     for (int i = 0; i < comboBoxes.size(); i++)
         comboBoxes[i]->setCurrentText(QString("%1").arg(0));
     ui->labelResult->clear();
+}
+
+void VoteDialog::killThemAll()
+{
+    QList<int> playersForRevoting;
+    playersForRevoting.push_back(condemned[0].first);
+    for (int i = 1; i < condemned.size() && condemned[i].second == condemned[0].second; i++)
+        playersForRevoting.push_back(condemned[i].first);
+
+    for (int i = 0; i < players.size(); i++)
+        if (playersForRevoting.contains(players[i]->getNumber())) players[i]->die();
+    emit killed(-1);
+    this->close();
+}
+
+void VoteDialog::leaveThemAlive()
+{
+    emit killed(-1);
+    this->close();
+}
+
+void VoteDialog::changeEnabled()
+{
+    for (int i = 0; i < comboBoxes.size() - 1; i++)
+        if (!comboBoxes[i]->currentText().isEmpty()) comboBoxes[i + 1]->setEnabled(true);
 }

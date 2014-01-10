@@ -11,6 +11,7 @@
 #include "votedialog.h"
 #include "warningbutton.h"
 #include "player.h"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),font("Times",22),pause(true),secondsLeft(60)
@@ -81,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     for (int i = 0; i < names.size() - 1; i++)
         connect(names[i],SIGNAL(returnPressed()),names[i+1],SLOT(setFocus()));
 
+    wasRevoting = false;
 }
 
 MainWindow::~MainWindow()
@@ -177,6 +179,7 @@ void MainWindow::changeSpeaker()
     }
     else
     {
+        emit lastPlayerEnded();
         afterDay();
     }
 }
@@ -246,6 +249,8 @@ void MainWindow::afterNight()
     disconnect(this,SIGNAL(timeIsLeft()),0,0);
     connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
 
+    for (int i = 0; i < players.size(); i++)
+        if (players[i]->isAlive) votesComboBoxes[players[i]->getNumber() - 1]->setEnabled(true);
     players = shift(players);
 
     currentSpeaker=players.begin();
@@ -344,14 +349,23 @@ void MainWindow::switch_revotinglist_and_players()
 
 void MainWindow::revote(QList<int> rList)
 {
+    revotingPlayers.clear();
     for (int i = 0; i < rList.size(); i++)
         revotingPlayers.push_back(getPlayerByNumber(rList[i]));
     switch_revotinglist_and_players();
 
-    for( int i = 0; i < votesComboBoxes.size(); i++)
+    for( int i = 0; i < votesComboBoxes.size(); i++)   
+    {
+        bool notClean = false;
         votesComboBoxes[i]->setEnabled(false);
-
+        for (int j = 0; j < rList.size(); j++)
+            if ((votesComboBoxes[i]->currentText() == "Nobody") || votesComboBoxes[i]->currentText() == QString("%1").arg(rList[j]))
+                notClean = true;
+        if (!notClean) votesComboBoxes[i]->setCurrentText("Nobody");
+    }
     //TO DO set comboboxes of condemned to each other pointer.
+
+
     currentSpeaker = players.begin();
     connect(this,SIGNAL(lastPlayerEnded()),this,SLOT(switch_revotinglist_and_players()));
 
@@ -369,12 +383,15 @@ Player *MainWindow::getPlayerByNumber(int number)
 
 void MainWindow::lastWordAfterDay(int player)
 {
-    disconnect(this,SIGNAL(timeIsLeft()),0,0);
-    connect(this,SIGNAL(timeIsLeft()),this,SLOT(night()));
+    if (player != -1)
+    {
+        disconnect(this,SIGNAL(timeIsLeft()),0,0);
+        connect(this,SIGNAL(timeIsLeft()),this,SLOT(night()));
 
-    secondsLeft = 59;
-    ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(player));
-
+        secondsLeft = 59;
+        ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(player));
+    }
+    else night();
 }
 
 void MainWindow::lastWordAfterNight(int player)

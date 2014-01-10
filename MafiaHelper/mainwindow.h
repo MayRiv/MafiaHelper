@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QComboBox>
+
 namespace Ui {
 class MainWindow;
 }
@@ -16,6 +17,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    bool wasRevoting;
 signals:
     void lastPlayerEnded();
     void timeIsLeft();
