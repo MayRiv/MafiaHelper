@@ -88,7 +88,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
 QList<Player*> MainWindow::shift(QList<Player*> l)
 {
     QList<Player*> temp = l;
@@ -121,7 +120,6 @@ void MainWindow::on_votebox_item_change(QString item)
     }
 
 }
-
 
 void MainWindow::on_rolebox_item_change(QString item)
 {
@@ -179,11 +177,9 @@ void MainWindow::changeSpeaker()
     }
     else
     {
-        //emit lastPlayerEnded();
         afterDay();
     }
 }
-
 
 void MainWindow::on_pushButton_11_clicked()
 {
@@ -199,7 +195,6 @@ void MainWindow::on_pushButton_11_clicked()
         timer->stop();
     }
 }
-
 
 void MainWindow::afterDay()
 {
@@ -232,11 +227,9 @@ void MainWindow::afterDay()
         {
             disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
             night();
-
         }
     }
 }
-
 
 void MainWindow::night()
 {
@@ -248,11 +241,10 @@ void MainWindow::night()
     d->showFullScreen();
 }
 
-
 void MainWindow::afterNight()
 {
+    disconnect(this,SIGNAL(timeIsLeft()),0,0);
     connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
-    disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(afterNight()));
 
     players = shift(players);
 
@@ -266,8 +258,6 @@ void MainWindow::afterNight()
     for (int i=1;i<=10;i++)
         if (players[i-1]->isAlive) avaibleForVote.push_back(QString("%1").arg(i));
 
-
-
     for (int i=0;i<votesComboBoxes.size();i++)
     {
         votesComboBoxes[i]->blockSignals(true);
@@ -278,7 +268,6 @@ void MainWindow::afterNight()
     }
 }
 
-
 void MainWindow::minusSecond()
 {
     secondsLeft--;
@@ -287,8 +276,6 @@ void MainWindow::minusSecond()
        // changeSpeaker();
         emit timeIsLeft();
 }
-
-
 
 void MainWindow::on_actionChange_Names_triggered()
 {
@@ -309,7 +296,6 @@ void MainWindow::on_actionChange_Names_triggered()
 
 }
 
-
 void MainWindow::on_actionHide_Show_Roles_triggered()
 {
     bool visible;
@@ -327,7 +313,6 @@ void MainWindow::on_actionHide_Show_Roles_triggered()
         rolesComboBoxes[i]->setVisible(visible);
     ui->rolesLabel->setVisible(visible);
 }
-
 
 void MainWindow::on_actionRestart_triggered()
 {
@@ -384,7 +369,7 @@ Player *MainWindow::getPlayerByNumber(int number)
 
 void MainWindow::lastWordAfterDay(int player)
 {
-    disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+    disconnect(this,SIGNAL(timeIsLeft()),0,0);
     connect(this,SIGNAL(timeIsLeft()),this,SLOT(night()));
 
     secondsLeft = 59;
@@ -396,7 +381,7 @@ void MainWindow::lastWordAfterNight(int player)
 {
     if (player != -1)
     {
-        disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+        disconnect(this,SIGNAL(timeIsLeft()),0,0);
         connect(this,SIGNAL(timeIsLeft()),this,SLOT(afterNight()));
         secondsLeft = 59;
         ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(player));
@@ -404,11 +389,8 @@ void MainWindow::lastWordAfterNight(int player)
     else
     {
         afterNight();
-        disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
-        connect(this,SIGNAL(timeIsLeft()),this,SLOT(afterNight()));
     }
 }
-
 
 void MainWindow::on_pushButton_15_clicked()
 {
