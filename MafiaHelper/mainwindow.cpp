@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         warningButtons.push_back(new WarningButton);
         warningButtons.back()->setMinimumHeight(100);
-        warningButtons.back()->setMinimumWidth(100);
+        warningButtons.back()->setMinimumWidth(60);
         warningButtons.back()->setFont(font);
 
         names.push_back(new QLineEdit(this));
@@ -101,10 +101,11 @@ QList<Player*> MainWindow::shift(QList<Player*> l)
 
 void MainWindow::on_votebox_item_change(QString item)
 {
-   avaibleForVote.clear();
+    avaibleForVote.clear();
     avaibleForVote.push_back("Nobody");
-    for (int i=1;i<=10;i++)
-        avaibleForVote.push_back(QString("%1").arg(i));
+
+    for (int i = 0; i < players.size(); i++)
+        if (players[i]->isAlive) avaibleForVote.push_back(QString("%1").arg(players[i]->getNumber()));
 
     for (int i = 0; i < votesComboBoxes.size(); i++)
         if (votesComboBoxes[i]->currentText() != "Nobody")
@@ -202,12 +203,17 @@ void MainWindow::on_pushButton_11_clicked()
 void MainWindow::afterDay()
 {
     QList<int> votes;
-    for (int i=0;i<votesComboBoxes.size();i++)
+    /*for (int i=0;i<votesComboBoxes.size();i++)
         if (votesComboBoxes[i]->currentText() != "Nobody" )
         {
             votes.push_back(votesComboBoxes[i]->currentText().toInt());
         }
-
+    */
+    for (int i = 0; i < players.size(); i++)
+        if (votesComboBoxes[players[i]->getNumber() - 1]->currentText() != "Nobody")
+        {
+            votes.push_back(votesComboBoxes[players[i]->getNumber() - 1]->currentText().toInt());
+        }
     if (!votes.empty() && votes.size() != 1)
     {
         VoteDialog* d = new VoteDialog(players,votes,this);
@@ -321,12 +327,24 @@ void MainWindow::on_actionHide_Show_Roles_triggered()
 
 void MainWindow::on_actionRestart_triggered()
 {
-    players.empty();
+    players.clear();
+
+    avaibleForVote.clear();
+    avaibleForVote.push_back("Nobody");
+
+    for (int i=1;i<=10;i++)
+        avaibleForVote.push_back(QString("%1").arg(i));
+
     for (int i = 0; i < 10; i++)
     {
         votesComboBoxes[i]->setEnabled(true);
+        votesComboBoxes[i]->blockSignals(true);
+        votesComboBoxes[i]->clear();
+        votesComboBoxes[i]->addItems(avaibleForVote);
         votesComboBoxes[i]->setCurrentIndex(0);
+        votesComboBoxes[i]->blockSignals(false);
         rolesComboBoxes[i]->setEnabled(true);
+
         names[i]->setEnabled(true);
         names[i]->clear();
         warningButtons[i]->setEnabled(true);
@@ -336,7 +354,6 @@ void MainWindow::on_actionRestart_triggered()
     currentSpeaker = players.begin();
 
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
-
 }
 
 void MainWindow::switch_revotinglist_and_players()
@@ -412,4 +429,16 @@ void MainWindow::lastWordAfterNight(int player)
 void MainWindow::on_pushButton_15_clicked()
 {
     emit timeIsLeft();
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    this->close();
+}
+
+void MainWindow::on_actionPrevious_Speaker_triggered()
+{
+    if (currentSpeaker != players.begin()) currentSpeaker--;
+    secondsLeft = 59;
+    ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
 }

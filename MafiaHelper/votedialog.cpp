@@ -52,7 +52,8 @@ VoteDialog::VoteDialog(QList<Player *> allPlayers, QList<int> ePlayers, QWidget 
         connect(comboBoxes[i],SIGNAL(currentIndexChanged(int)),this,SLOT(changeEnabled()));
         comboBoxes[i + 1]->setEnabled(false);
     }
-    connect(comboBoxes.back(),SIGNAL(currentIndexChanged(QString)),this,SLOT(calculate()));
+    for (int i = 0; i < comboBoxes.size(); i++)
+        connect(comboBoxes[i],SIGNAL(currentIndexChanged(QString)),this,SLOT(calculate()));
 
 }
 

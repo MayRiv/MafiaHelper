@@ -55,6 +55,8 @@ private slots:
     void on_pushButton_15_clicked();
     void lastWordAfterDay(int);
     void lastWordAfterNight(int);
+    void on_actionExit_triggered();
+    void on_actionPrevious_Speaker_triggered();
 };
 
 #endif // MAINWINDOW_H

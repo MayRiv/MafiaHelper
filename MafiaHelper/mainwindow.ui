@@ -136,7 +136,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-585</y>
+         <y>0</y>
          <width>647</width>
          <height>1093</height>
         </rect>
@@ -484,6 +484,7 @@
     <addaction name="actionChange_Names"/>
     <addaction name="actionHide_Show_Roles"/>
     <addaction name="actionRestart"/>
+    <addaction name="actionPrevious_Speaker"/>
     <addaction name="actionExit"/>
    </widget>
    <addaction name="menuMenu"/>
@@ -506,6 +507,11 @@
   <action name="actionChange_Names">
    <property name="text">
     <string>Disable Names</string>
+   </property>
+  </action>
+  <action name="actionPrevious_Speaker">
+   <property name="text">
+    <string>Previous Speaker</string>
    </property>
   </action>
  </widget>
