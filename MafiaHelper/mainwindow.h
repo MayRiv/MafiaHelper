@@ -10,6 +10,7 @@ class MainWindow;
 }
 class WarningButton;
 class Player;
+class VoteBoxController;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -25,7 +26,7 @@ private:
     QStringList avaibleRoles;
     QStringList avaibleForVote;
     QList<QComboBox*> rolesComboBoxes;
-    QList<QComboBox*> votesComboBoxes;
+    //QList<QComboBox*> votesComboBoxes;
     QList<WarningButton*> warningButtons;
     QList<Player*> players;
     QList<Player*> revotingPlayers;
@@ -36,6 +37,7 @@ private:
     QFont font;
     int secondsLeft;
     bool pause;
+    VoteBoxController* voteBoxController;
 private slots:
     QList<Player*> shift(QList<Player*> l);
     void on_votebox_item_change(QString item);
@@ -57,6 +59,7 @@ private slots:
     void lastWordAfterNight(int);
     void on_actionExit_triggered();
     void on_actionPrevious_Speaker_triggered();
+    void on_actionAbout_triggered();
 };
 
 #endif // MAINWINDOW_H

@@ -483,8 +483,9 @@
     </property>
     <addaction name="actionChange_Names"/>
     <addaction name="actionHide_Show_Roles"/>
-    <addaction name="actionRestart"/>
     <addaction name="actionPrevious_Speaker"/>
+    <addaction name="actionAbout"/>
+    <addaction name="actionRestart"/>
     <addaction name="actionExit"/>
    </widget>
    <addaction name="menuMenu"/>
@@ -512,6 +513,11 @@
   <action name="actionPrevious_Speaker">
    <property name="text">
     <string>Previous Speaker</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

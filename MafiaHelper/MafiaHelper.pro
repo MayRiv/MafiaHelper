@@ -18,14 +18,16 @@ SOURCES += main.cpp\
     votedialog.cpp \
     warningbutton.cpp \
     player.cpp \
-    killallrevoting.cpp
+    killallrevoting.cpp \
+    voteboxcontroller.cpp
 
 HEADERS  += mainwindow.h \
     nightdialog.h \
     votedialog.h \
     warningbutton.h \
     player.h \
-    killallrevoting.h
+    killallrevoting.h \
+    voteboxcontroller.h
 
 FORMS    += mainwindow.ui \
     nightdialog.ui \

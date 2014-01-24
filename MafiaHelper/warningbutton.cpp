@@ -8,6 +8,12 @@ WarningButton::WarningButton(QWidget *parent) :
     connect(this,SIGNAL(clicked()),this,SLOT(increaseWarnings()));
 }
 
+void WarningButton::removeAllWarnings()
+{
+    warningNumber = 0;
+    this->setText(QString("0"));
+}
+
 void WarningButton::increaseWarnings()
 {
     warningNumber++;

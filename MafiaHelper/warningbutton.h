@@ -8,7 +8,7 @@ class WarningButton : public QPushButton
     Q_OBJECT
 public:
     explicit WarningButton(QWidget *parent = 0);
-
+    void removeAllWarnings();
 signals:
     void scored4warnings();
 public slots:
