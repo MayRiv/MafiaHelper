@@ -14,6 +14,7 @@
 #include "player.h"
 #include "voteboxcontroller.h"
 #include "roleboxcontroller.h"
+#include "Constants.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),font("Times",22),pause(true),secondsLeft(60)
@@ -44,15 +45,15 @@ MainWindow::MainWindow(QWidget *parent) :
     for (int i=0;i<10;i++)
     {
         rolesComboBoxes.push_back(new QComboBox(this));
-        rolesComboBoxes.back()->setMinimumHeight(100);
-        rolesComboBoxes.back()->setMinimumWidth(100);
+        rolesComboBoxes.back()->setMinimumHeight(MIN_HEIGHT);
+        rolesComboBoxes.back()->setMinimumWidth(MIN_COMBOBOX_WIDTH);
         rolesComboBoxes.back()->addItems(avaibleRoles);
         rolesComboBoxes.back()->setFont(font);
         //connect(rolesComboBoxes.back(),SIGNAL(currentTextChanged(QString)),this,SLOT(on_rolebox_item_change(QString)));
 
         votesComboBoxes.push_back(new QComboBox(this));
-        votesComboBoxes.back()->setMinimumHeight(100);
-        votesComboBoxes.back()->setMinimumWidth(100);
+        votesComboBoxes.back()->setMinimumHeight(MIN_HEIGHT);
+        votesComboBoxes.back()->setMinimumWidth(MIN_COMBOBOX_WIDTH);
         votesComboBoxes.back()->addItems(avaibleForVote);
         votesComboBoxes.back()->setFont(font);
         votesComboBoxes.back()->setStyleSheet("alignment: right;");
@@ -60,13 +61,12 @@ MainWindow::MainWindow(QWidget *parent) :
             votesComboBoxes.back()->setItemData(j,Qt::AlignHCenter, Qt::TextAlignmentRole);
 
         warningButtons.push_back(new WarningButton);
-        warningButtons.back()->setMinimumHeight(100);
-        warningButtons.back()->setMinimumWidth(60);
+        warningButtons.back()->setMinimumHeight(MIN_HEIGHT);
+        warningButtons.back()->setMinimumWidth(MIN_WARNING_BUTTON_WIDTH);
         warningButtons.back()->setFont(font);
 
         names.push_back(new QLineEdit(this));
-        names.back()->setMinimumHeight(100);
-        names.back()->setMinimumWidth(100);
+        names.back()->setMinimumHeight(MIN_HEIGHT);
         names.back()->setFont(font);
 
         players.push_back(new Player(rolesComboBoxes.back(),votesComboBoxes.back(),names.back(),warningButtons.back(), i + 1,this));
@@ -91,8 +91,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     voteBoxController = new VoteBoxController(votesComboBoxes,players,this);
     roleBoxController = new RoleBoxController(rolesComboBoxes,players,this);
-}
 
+    for (int i = 1; i <= 10; i++)
+    {
+        QLabel* label = new QLabel(this);
+        label->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1</span></p></body></html>").arg(i));
+        label->setMinimumHeight(MIN_HEIGHT);
+        ui->verticalLayout_6->addWidget(label);
+        label->show();
+    }
+}
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -216,9 +224,8 @@ void MainWindow::afterNight()
 
 void MainWindow::minusSecond()
 {
-    //secondsLeft--;
+
     setTime(--secondsLeft);
-   // ui->label_5->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Time left: %1</span></p>").arg(secondsLeft));
     if (secondsLeft == 0)
         emit timeIsLeft();
 }
@@ -280,9 +287,6 @@ void MainWindow::on_actionRestart_triggered()
         voteBoxController->setNobodyToAll();
     }
     currentSpeaker = players.begin();
-    /*secondsLeft = 60;
-    ui->label_5->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Time left: %1</span></p>").arg(secondsLeft));
-    */
     setTime(60);
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
 }

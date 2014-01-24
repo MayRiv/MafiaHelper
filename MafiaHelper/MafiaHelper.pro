@@ -29,7 +29,8 @@ HEADERS  += mainwindow.h \
     player.h \
     killallrevoting.h \
     voteboxcontroller.h \
-    roleboxcontroller.h
+    roleboxcontroller.h \
+    Constants.h
 
 FORMS    += mainwindow.ui \
     nightdialog.ui \

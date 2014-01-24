@@ -9,6 +9,8 @@ int main(int argc, char *argv[])
     MainWindow w;
     //w.showFullScreen();
     w.show();
-
+#ifdef Q_OS_WIN
+    qDebug() << "Hello";
+#endif
     return a.exec();
 }
