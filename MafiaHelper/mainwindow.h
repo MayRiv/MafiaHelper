@@ -11,6 +11,7 @@ class MainWindow;
 class WarningButton;
 class Player;
 class VoteBoxController;
+class RoleBoxController;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -23,10 +24,6 @@ signals:
     void lastPlayerEnded();
     void timeIsLeft();
 private:
-    QStringList avaibleRoles;
-    QStringList avaibleForVote;
-    QList<QComboBox*> rolesComboBoxes;
-    //QList<QComboBox*> votesComboBoxes;
     QList<WarningButton*> warningButtons;
     QList<Player*> players;
     QList<Player*> revotingPlayers;
@@ -38,9 +35,9 @@ private:
     int secondsLeft;
     bool pause;
     VoteBoxController* voteBoxController;
+    RoleBoxController* roleBoxController;
 private slots:
     QList<Player*> shift(QList<Player*> l);
-    void on_rolebox_item_change(QString item);
     void changeSpeaker();
     void on_pushButton_11_clicked();
     void afterDay();
