@@ -98,6 +98,14 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
+
+void MainWindow::setTime(int seconds)
+{
+    secondsLeft = seconds;
+    ui->label_5->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Time left: %1</span></p>").arg(secondsLeft));
+}
+
 QList<Player*> MainWindow::shift(QList<Player*> l)
 {
     QList<Player*> temp = l;
@@ -208,8 +216,9 @@ void MainWindow::afterNight()
 
 void MainWindow::minusSecond()
 {
-    secondsLeft--;
-    ui->label_5->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Time left: %1</span></p>").arg(secondsLeft));
+    //secondsLeft--;
+    setTime(--secondsLeft);
+   // ui->label_5->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Time left: %1</span></p>").arg(secondsLeft));
     if (secondsLeft == 0)
         emit timeIsLeft();
 }
@@ -271,7 +280,10 @@ void MainWindow::on_actionRestart_triggered()
         voteBoxController->setNobodyToAll();
     }
     currentSpeaker = players.begin();
-
+    /*secondsLeft = 60;
+    ui->label_5->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Time left: %1</span></p>").arg(secondsLeft));
+    */
+    setTime(60);
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
 }
 
@@ -313,7 +325,8 @@ void MainWindow::lastWordAfterDay(int player)
         disconnect(this,SIGNAL(timeIsLeft()),0,0);
         connect(this,SIGNAL(timeIsLeft()),this,SLOT(night()));
 
-        secondsLeft = 59;
+
+        setTime(60);
         ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(player));
     }
     else night();
@@ -325,7 +338,7 @@ void MainWindow::lastWordAfterNight(int player)
     {
         disconnect(this,SIGNAL(timeIsLeft()),0,0);
         connect(this,SIGNAL(timeIsLeft()),this,SLOT(afterNight()));
-        secondsLeft = 59;
+        setTime(60);
         ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(player));
     }
     else
@@ -347,7 +360,7 @@ void MainWindow::on_actionExit_triggered()
 void MainWindow::on_actionPrevious_Speaker_triggered()
 {
     if (currentSpeaker != players.begin()) currentSpeaker--;
-    secondsLeft = 59;
+    setTime(60);
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
 }
 

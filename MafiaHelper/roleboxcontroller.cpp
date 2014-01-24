@@ -52,16 +52,16 @@ void RoleBoxController::on_votebox_item_change(QString item)
 
 
     for (int i = 0; i < comboBoxes.size(); i++)
-        {
-            comboBoxes[i]->blockSignals(true);
-            QString currentText = comboBoxes[i]->currentText();
+    {
+        comboBoxes[i]->blockSignals(true);
+        QString currentText = comboBoxes[i]->currentText();
 
-            comboBoxes[i]->clear();
-            comboBoxes[i]->addItems(avaibleRoles);
-            if (!currentText.isEmpty() && !avaibleRoles.contains(currentText)) comboBoxes[i]->addItem(currentText);
-            comboBoxes[i]->setCurrentText(currentText);
-            comboBoxes[i]->blockSignals(false);
-        }
+        comboBoxes[i]->clear();
+        comboBoxes[i]->addItems(avaibleRoles);
+        if (!currentText.isEmpty() && !avaibleRoles.contains(currentText)) comboBoxes[i]->addItem(currentText);
+        comboBoxes[i]->setCurrentText(currentText);
+        comboBoxes[i]->blockSignals(false);
+    }
 
     if (!mafiaCount && !sherifCount && !donCount)
         for (int i = 0; i < comboBoxes.size(); i++)

@@ -20,6 +20,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     bool wasRevoting;
+    void setTime(int seconds);
 signals:
     void lastPlayerEnded();
     void timeIsLeft();
@@ -36,6 +37,9 @@ private:
     bool pause;
     VoteBoxController* voteBoxController;
     RoleBoxController* roleBoxController;
+    void setSeconds(int seconds);
+
+
 private slots:
     QList<Player*> shift(QList<Player*> l);
     void changeSpeaker();

@@ -77,16 +77,18 @@ void VoteDialog::voting(QString number)
         if (currentNumber.toInt() > maxVotes)
         {
             QStringList temp;
-            for (int i = 0; i <= currentNumber.toInt(); i++)
-                temp.push_back(QString("%1").arg(i));
+            for (int j = 0; j <= currentNumber.toInt(); j++)
+                temp.push_back(QString("%1").arg(j));
 
             comboBoxes[i]->addItems(temp);
         }
         else comboBoxes[i]->addItems(numberOfPlayers);
         comboBoxes[i]->setCurrentText(currentNumber);
         comboBoxes[i]->blockSignals(false);
-
     }
+
+
+
 }
 void VoteDialog::calculate()
 {
