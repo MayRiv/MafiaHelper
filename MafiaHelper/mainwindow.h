@@ -40,7 +40,6 @@ private:
     VoteBoxController* voteBoxController;
 private slots:
     QList<Player*> shift(QList<Player*> l);
-    void on_votebox_item_change(QString item);
     void on_rolebox_item_change(QString item);
     void changeSpeaker();
     void on_pushButton_11_clicked();

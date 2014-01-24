@@ -23,6 +23,14 @@ void VoteBoxController::setNobodyToAll()
         (*i)->setCurrentText("Nobody");
 }
 
+void VoteBoxController::setNominattions(QList<int> revotingPlayers)
+{
+    this->setNobodyToAll();
+    for (int i = 0; i < revotingPlayers.size() - 1; i++)
+        this->comboBoxes[revotingPlayers[i] - 1]->setCurrentText(QString("%1").arg(revotingPlayers[i + 1]));
+    this->comboBoxes[revotingPlayers.back() - 1]->setCurrentText(QString("%1").arg(revotingPlayers.first()));
+}
+
 void VoteBoxController::on_votebox_item_change(QString item)
 {
     QStringList avaibleForVote;
@@ -41,7 +49,7 @@ void VoteBoxController::on_votebox_item_change(QString item)
             QString currentText = comboBoxes[i]->currentText();
             comboBoxes[i]->clear();
             comboBoxes[i]->addItems(avaibleForVote);
-            if (currentText != "Nobody") comboBoxes[i]->addItem(currentText);
+            if (currentText != "Nobody") comboBoxes[i]->addItem(currentText); //This also could be insterted in the right spot.
             comboBoxes[i]->setCurrentText(currentText);
             comboBoxes[i]->blockSignals(false);
     }

@@ -54,8 +54,6 @@ MainWindow::MainWindow(QWidget *parent) :
         for (int j=0;j<10;j++)
             votesComboBoxes.back()->setItemData(j,Qt::AlignHCenter, Qt::TextAlignmentRole);
 
-//        connect(votesComboBoxes.back(),SIGNAL(currentTextChanged(QString)),this,SLOT(on_votebox_item_change(QString)));
-
         warningButtons.push_back(new WarningButton);
         warningButtons.back()->setMinimumHeight(100);
         warningButtons.back()->setMinimumWidth(60);
@@ -103,30 +101,7 @@ QList<Player*> MainWindow::shift(QList<Player*> l)
     return temp;
 }
 
-void MainWindow::on_votebox_item_change(QString item)
-{
- /*   avaibleForVote.clear();
-    avaibleForVote.push_back("Nobody");
 
-    for (int i = 0; i < players.size(); i++)
-        if (players[i]->isAlive) avaibleForVote.push_back(QString("%1").arg(players[i]->getNumber()));
-
-    for (int i = 0; i < votesComboBoxes.size(); i++)
-        if (votesComboBoxes[i]->currentText() != "Nobody")
-            avaibleForVote.removeOne(votesComboBoxes[i]->currentText());
-
-    for (int i = 0; i < votesComboBoxes.size(); i++)
-    {
-            votesComboBoxes[i]->blockSignals(true);
-            QString currentText = votesComboBoxes[i]->currentText();
-            votesComboBoxes[i]->clear();
-            votesComboBoxes[i]->addItems(avaibleForVote);
-            if (currentText != "Nobody") votesComboBoxes[i]->addItem(currentText);
-            votesComboBoxes[i]->setCurrentText(currentText);
-            votesComboBoxes[i]->blockSignals(false);
-    }
-*/
-}
 
 void MainWindow::on_rolebox_item_change(QString item)
 {
@@ -329,7 +304,6 @@ void MainWindow::on_actionRestart_triggered()
         names[i]->clear();
         warningButtons[i]->setEnabled(true);
         warningButtons[i]->removeAllWarnings();
-        //warningButtons[i]->setText(QString("%1").arg(0));
         players.push_back(new Player(rolesComboBoxes[i],voteBoxController->getVoteComboBoxes()[i],names[i],warningButtons[i], i + 1,this));
         voteBoxController->setNobodyToAll();
     }
@@ -353,15 +327,7 @@ void MainWindow::revote(QList<int> rList)
         revotingPlayers.push_back(getPlayerByNumber(rList[i]));
     switch_revotinglist_and_players();
 
-    /*for( int i = 0; i < votesComboBoxes.size(); i++)
-    {
-        bool notClean = false;
-        votesComboBoxes[i]->setEnabled(false);
-        for (int j = 0; j < rList.size(); j++)
-            if ((votesComboBoxes[i]->currentText() == "Nobody") || votesComboBoxes[i]->currentText() == QString("%1").arg(rList[j]))
-                notClean = true;
-        if (!notClean) votesComboBoxes[i]->setCurrentText("Nobody");
-    }*/
+    voteBoxController->setNominattions(rList);
 
     currentSpeaker = players.begin();
     connect(this,SIGNAL(lastPlayerEnded()),this,SLOT(switch_revotinglist_and_players()));

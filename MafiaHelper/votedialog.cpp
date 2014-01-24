@@ -47,11 +47,11 @@ VoteDialog::VoteDialog(QList<Player *> allPlayers, QList<int> ePlayers, QWidget 
         ui->labelsLayout->addWidget(label);
     }
 
-    for (int i =0; i < comboBoxes.size() - 1; i++)
+    /*for (int i =0; i < comboBoxes.size() - 1; i++)
     {
         connect(comboBoxes[i],SIGNAL(currentIndexChanged(int)),this,SLOT(changeEnabled()));
         comboBoxes[i + 1]->setEnabled(false);
-    }
+    }*/
     for (int i = 0; i < comboBoxes.size(); i++)
         connect(comboBoxes[i],SIGNAL(currentIndexChanged(QString)),this,SLOT(calculate()));
 
