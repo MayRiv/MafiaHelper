@@ -1,9 +1,9 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 #ifdef Q_OS_WIN
-int MIN_HEIGHT               = 1;
-int MIN_WARNING_BUTTON_WIDTH = 1;
-int MIN_COMBOBOX_WIDTH       = 1;
+int MIN_HEIGHT               = 50;
+int MIN_WARNING_BUTTON_WIDTH = 50;
+int MIN_COMBOBOX_WIDTH       = 50;
 
 #endif
 #ifdef Q_OS_ANDROID

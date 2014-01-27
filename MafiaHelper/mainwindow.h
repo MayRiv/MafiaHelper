@@ -38,9 +38,10 @@ private:
     VoteBoxController* voteBoxController;
     RoleBoxController* roleBoxController;
     void setSeconds(int seconds);
-
+    QList<QComboBox*> votesComboBoxes;
 
 private slots:
+    void on_votebox_item_change(QString);
     QList<Player*> shift(QList<Player*> l);
     void changeSpeaker();
     void on_pushButton_11_clicked();
@@ -59,7 +60,7 @@ private slots:
     void lastWordAfterNight(int);
     void on_actionExit_triggered();
     void on_actionPrevious_Speaker_triggered();
-    void on_actionAbout_triggered();
+    //void on_actionAbout_triggered();
 };
 
 #endif // MAINWINDOW_H

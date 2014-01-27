@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QScrollBar>
-#include <QMessageBox>
 #include <QScroller>
 #include <QTimer>
 #include <QDebug>
@@ -12,21 +11,21 @@
 #include "votedialog.h"
 #include "warningbutton.h"
 #include "player.h"
-#include "voteboxcontroller.h"
-#include "roleboxcontroller.h"
 #include "Constants.h"
+#include "roleboxcontroller.h"
+#include "voteboxcontroller.h"
+QString NOBODY = "";
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),font("Times",22),pause(true),secondsLeft(60)
 {
     ui->setupUi(this);
     QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::LeftMouseButtonGesture );
-    this->setWindowFlags(Qt::Window);
+
     timer = new QTimer(this);
     timer->setInterval(1000);
     connect(timer,SIGNAL(timeout()),this,SLOT(minusSecond()));
     connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
-
     QStringList avaibleRoles;
     avaibleRoles.push_back("");
     avaibleRoles.push_back("Citizen");
@@ -35,13 +34,11 @@ MainWindow::MainWindow(QWidget *parent) :
     avaibleRoles.push_back("Mafia");
 
     QStringList avaibleForVote;
-    avaibleForVote.push_back("Nobody");
+    avaibleForVote.push_back(NOBODY);
     for (int i=1;i<=10;i++)
         avaibleForVote.push_back(QString("%1").arg(i));
 
-    QList<QComboBox*> votesComboBoxes;
     QList<QComboBox*> rolesComboBoxes;
-
     for (int i=0;i<10;i++)
     {
         rolesComboBoxes.push_back(new QComboBox(this));
@@ -60,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent) :
         for (int j=0;j<10;j++)
             votesComboBoxes.back()->setItemData(j,Qt::AlignHCenter, Qt::TextAlignmentRole);
 
+        connect(votesComboBoxes.back(),SIGNAL(currentTextChanged(QString)),this,SLOT(on_votebox_item_change(QString)));
+
         warningButtons.push_back(new WarningButton);
         warningButtons.back()->setMinimumHeight(MIN_HEIGHT);
         warningButtons.back()->setMinimumWidth(MIN_WARNING_BUTTON_WIDTH);
@@ -69,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
         names.back()->setMinimumHeight(MIN_HEIGHT);
         names.back()->setFont(font);
 
-        players.push_back(new Player(rolesComboBoxes.back(),votesComboBoxes.back(),names.back(),warningButtons.back(), i + 1,this));
+        players.push_back(new Player(rolesComboBoxes.back(),votesComboBoxes.back(),names.back(),warningButtons.back(), i + 1));
 
         ui->verticalLayout->addWidget(names.back());
         ui->verticalLayout_2->addWidget(rolesComboBoxes.back());
@@ -88,30 +87,20 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(names[i],SIGNAL(returnPressed()),names[i+1],SLOT(setFocus()));
 
     wasRevoting = false;
-
-    voteBoxController = new VoteBoxController(votesComboBoxes,players,this);
     roleBoxController = new RoleBoxController(rolesComboBoxes,players,this);
+    //voteBoxController = new VoteBoxController(votesComboBoxes,players,this);
 
     for (int i = 1; i <= 10; i++)
     {
-        QLabel* label = new QLabel(this);
-        label->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1</span></p></body></html>").arg(i));
-        label->setMinimumHeight(MIN_HEIGHT);
+        QLabel* label = new QLabel(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1</span></p>").arg(i));
         ui->verticalLayout_6->addWidget(label);
-        label->show();
+        label->setMinimumHeight(MIN_HEIGHT);
     }
 }
+
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-
-
-void MainWindow::setTime(int seconds)
-{
-    secondsLeft = seconds;
-    ui->label_5->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Time left: %1</span></p>").arg(secondsLeft));
 }
 
 QList<Player*> MainWindow::shift(QList<Player*> l)
@@ -122,6 +111,33 @@ QList<Player*> MainWindow::shift(QList<Player*> l)
     temp.push_back(t);
     return temp;
 }
+
+void MainWindow::on_votebox_item_change(QString item)
+{
+    QStringList avaibleForVote;
+    avaibleForVote.push_back(NOBODY);
+
+    for (int i = 0; i < players.size(); i++)
+        if (players[i]->isAlive) avaibleForVote.push_back(QString("%1").arg(players[i]->getNumber()));
+
+    for (int i = 0; i < votesComboBoxes.size(); i++)
+        if (votesComboBoxes[i]->currentText() != NOBODY)
+            avaibleForVote.removeOne(votesComboBoxes[i]->currentText());
+
+    for (int i = 0; i < votesComboBoxes.size(); i++)
+    {
+            votesComboBoxes[i]->blockSignals(true);
+            QString currentText = votesComboBoxes[i]->currentText();
+            votesComboBoxes[i]->clear();
+            votesComboBoxes[i]->addItems(avaibleForVote);
+            if (currentText != NOBODY) votesComboBoxes[i]->addItem(currentText);
+            votesComboBoxes[i]->setCurrentText(currentText);
+            votesComboBoxes[i]->blockSignals(false);
+    }
+
+}
+
+
 
 void MainWindow::changeSpeaker()
 {
@@ -163,26 +179,26 @@ void MainWindow::on_pushButton_11_clicked()
 
 void MainWindow::afterDay()
 {
-    QList<int> nominations;
+    QList<int> votes;
 
     for (int i = 0; i < players.size(); i++)
-        if (voteBoxController->getVoteComboBoxes()[players[i]->getNumber() - 1]->currentText() != "Nobody")
+        if (votesComboBoxes[players[i]->getNumber() - 1]->currentText() != NOBODY)
         {
-            nominations.push_back(voteBoxController->getVoteComboBoxes()[players[i]->getNumber() - 1]->currentText().toInt());
+            votes.push_back(votesComboBoxes[players[i]->getNumber() - 1]->currentText().toInt());
         }
-    if (!nominations.empty() && nominations.size() != 1)
+    if (!votes.empty() && votes.size() != 1)
     {
-        VoteDialog* d = new VoteDialog(players,nominations,this);
+        VoteDialog* d = new VoteDialog(players,votes,this);
         connect(d,SIGNAL(killed(int)),this,SLOT(lastWordAfterDay(int)));
         connect(d,SIGNAL(revoting(QList<int>)),this,SLOT(revote(QList<int>)));
         d->showFullScreen();
     }
     else
     {
-        if (nominations.size() == 1)
+        if (votes.size() == 1 && players[0]->getNumber() != 1) //not first circle
         {
             for (int i = 0; i < players.size(); i++)
-                if (players.at(i)->getNumber() == nominations.first())
+                if (players.at(i)->getNumber() == votes.first())
                 {
                     players.at(i)->die();
                     lastWordAfterDay(players.at(i)->getNumber());
@@ -211,7 +227,8 @@ void MainWindow::afterNight()
     disconnect(this,SIGNAL(timeIsLeft()),0,0);
     connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
 
-    voteBoxController->setEnabledForAlivePlayers();
+    for (int i = 0; i < players.size(); i++)
+        if (players[i]->isAlive) votesComboBoxes[players[i]->getNumber() - 1]->setEnabled(true);
     players = shift(players);
 
     currentSpeaker=players.begin();
@@ -219,13 +236,25 @@ void MainWindow::afterNight()
         currentSpeaker++;
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
 
-    voteBoxController->setNobodyToAll();
+    QStringList avaibleForVote;
+    avaibleForVote.push_back(NOBODY);
+    for (int i=1;i<=10;i++)
+        if (players[i-1]->isAlive) avaibleForVote.push_back(QString("%1").arg(i));
+
+    for (int i=0;i<votesComboBoxes.size();i++)
+    {
+        votesComboBoxes[i]->blockSignals(true);
+        votesComboBoxes[i]->clear();
+        votesComboBoxes[i]->addItems(avaibleForVote);
+        votesComboBoxes[i]->setCurrentIndex(0);
+        votesComboBoxes[i]->blockSignals(false);
+    }
 }
 
 void MainWindow::minusSecond()
 {
-
-    setTime(--secondsLeft);
+    secondsLeft--;
+    ui->label_5->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Time left: %1</span></p>").arg(secondsLeft));
     if (secondsLeft == 0)
         emit timeIsLeft();
 }
@@ -262,33 +291,48 @@ void MainWindow::on_actionHide_Show_Roles_triggered()
         visible = true;
         ui->actionHide_Show_Roles->setText("Hide Roles");
     }
+
     roleBoxController->setVisibleRoleComboBoxes(visible);
     ui->rolesLabel->setVisible(visible);
 }
 
 void MainWindow::on_actionRestart_triggered()
 {
+    qDebug() << "Wat";
+
+    for (QList<Player*>::iterator i = players.begin(); i != players.end(); i++)
+        delete (*i);
     players.clear();
 
     QStringList avaibleForVote;
-    avaibleForVote.push_back("Nobody");
+    avaibleForVote.push_back(NOBODY);
 
     for (int i=1;i<=10;i++)
         avaibleForVote.push_back(QString("%1").arg(i));
 
     roleBoxController->setEnableRoleComboBoxes(true);
+
     for (int i = 0; i < 10; i++)
     {
+
+        votesComboBoxes[i]->setEnabled(true);
+        votesComboBoxes[i]->blockSignals(true);
+        votesComboBoxes[i]->clear();
+        votesComboBoxes[i]->addItems(avaibleForVote);
+        votesComboBoxes[i]->setCurrentIndex(0);
+        votesComboBoxes[i]->blockSignals(false);
         names[i]->setEnabled(true);
         names[i]->clear();
+
         warningButtons[i]->setEnabled(true);
         warningButtons[i]->removeAllWarnings();
-        players.push_back(new Player(roleBoxController->getRoleComboBoxes()[i],voteBoxController->getVoteComboBoxes()[i],names[i],warningButtons[i], i + 1,this));
-        voteBoxController->setNobodyToAll();
+
+        players.push_back(new Player(roleBoxController->getRoleComboBoxes()[i],votesComboBoxes[i],names[i],warningButtons[i], i + 1));
     }
     currentSpeaker = players.begin();
-    setTime(60);
+
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
+
 }
 
 void MainWindow::switch_revotinglist_and_players()
@@ -306,7 +350,17 @@ void MainWindow::revote(QList<int> rList)
         revotingPlayers.push_back(getPlayerByNumber(rList[i]));
     switch_revotinglist_and_players();
 
-    voteBoxController->setNominattions(rList);
+    for( int i = 0; i < votesComboBoxes.size(); i++)
+    {
+        bool notClean = false;
+        votesComboBoxes[i]->setEnabled(false);
+        for (int j = 0; j < rList.size(); j++)
+            if ((votesComboBoxes[i]->currentText() == NOBODY) || votesComboBoxes[i]->currentText() == QString("%1").arg(rList[j]))
+                notClean = true;
+        if (!notClean) votesComboBoxes[i]->setCurrentText(NOBODY);
+    }
+    //TO DO set comboboxes of condemned to each other pointer.
+
 
     currentSpeaker = players.begin();
     connect(this,SIGNAL(lastPlayerEnded()),this,SLOT(switch_revotinglist_and_players()));
@@ -317,9 +371,10 @@ void MainWindow::revote(QList<int> rList)
 
 Player *MainWindow::getPlayerByNumber(int number)
 {
+    for( int i = 0; i < votesComboBoxes.size(); i++)
+        votesComboBoxes[i]->setEnabled(true);
     for (int i = 0; i < players.size(); i++)
         if (players[i]->getNumber() == number) return players[i];
-    return NULL;
 }
 
 void MainWindow::lastWordAfterDay(int player)
@@ -329,8 +384,7 @@ void MainWindow::lastWordAfterDay(int player)
         disconnect(this,SIGNAL(timeIsLeft()),0,0);
         connect(this,SIGNAL(timeIsLeft()),this,SLOT(night()));
 
-
-        setTime(60);
+        secondsLeft = 59;
         ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(player));
     }
     else night();
@@ -342,7 +396,7 @@ void MainWindow::lastWordAfterNight(int player)
     {
         disconnect(this,SIGNAL(timeIsLeft()),0,0);
         connect(this,SIGNAL(timeIsLeft()),this,SLOT(afterNight()));
-        setTime(60);
+        secondsLeft = 59;
         ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(player));
     }
     else
@@ -364,11 +418,6 @@ void MainWindow::on_actionExit_triggered()
 void MainWindow::on_actionPrevious_Speaker_triggered()
 {
     if (currentSpeaker != players.begin()) currentSpeaker--;
-    setTime(60);
+    secondsLeft = 59;
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
-}
-
-void MainWindow::on_actionAbout_triggered()
-{
-    //TODO: write about otherselfs.
 }
