@@ -6,7 +6,9 @@ VoteBoxController::VoteBoxController(QList<QComboBox *> comboBoxes, QList<Player
     QObject(parent)
 {
     this->comboBoxes = comboBoxes;
-    this->players    = players;
+    //this->players    = players;
+    for (QList<Player*>::iterator i = players.begin(); i != players.end(); i++)
+        this->players.push_back(*i);
     for(QList<QComboBox*>::iterator i = comboBoxes.begin(); i != comboBoxes.end(); i++)
         connect(*i,SIGNAL(currentTextChanged(QString)),this,SLOT(on_votebox_item_change(QString)));
 }
@@ -23,13 +25,15 @@ void VoteBoxController::setNobodyToAll()
         (*i)->setCurrentText("Nobody");
 }
 
-void VoteBoxController::setNominattions(QList<int> revotingPlayers)
+void VoteBoxController::setNominations(QList<int> revotingPlayers)
 {
     this->setNobodyToAll();
     for (int i = 0; i < revotingPlayers.size() - 1; i++)
         this->comboBoxes[revotingPlayers[i] - 1]->setCurrentText(QString("%1").arg(revotingPlayers[i + 1]));
     this->comboBoxes[revotingPlayers.back() - 1]->setCurrentText(QString("%1").arg(revotingPlayers.first()));
 }
+
+
 
 void VoteBoxController::on_votebox_item_change(QString item)
 {

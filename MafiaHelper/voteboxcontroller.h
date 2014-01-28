@@ -11,7 +11,8 @@ public:
     QList<QComboBox*> getVoteComboBoxes(){return comboBoxes;}
     void setEnabledForAlivePlayers();
     void setNobodyToAll();
-    void setNominattions(QList<int> revotingPlayers);
+    void setNominations(QList<int> revotingPlayers);
+    //QList<int> getNominations();
 
 signals:
 

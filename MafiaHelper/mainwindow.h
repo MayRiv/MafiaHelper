@@ -41,7 +41,6 @@ private:
     QList<QComboBox*> votesComboBoxes;
 
 private slots:
-    void on_votebox_item_change(QString);
     QList<Player*> shift(QList<Player*> l);
     void changeSpeaker();
     void on_pushButton_11_clicked();

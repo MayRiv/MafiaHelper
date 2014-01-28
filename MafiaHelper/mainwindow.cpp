@@ -88,7 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     wasRevoting = false;
     roleBoxController = new RoleBoxController(rolesComboBoxes,players,this);
-    //voteBoxController = new VoteBoxController(votesComboBoxes,players,this);
+    voteBoxController = new VoteBoxController(votesComboBoxes,players,this);
 
     for (int i = 1; i <= 10; i++)
     {
@@ -112,7 +112,7 @@ QList<Player*> MainWindow::shift(QList<Player*> l)
     return temp;
 }
 
-void MainWindow::on_votebox_item_change(QString item)
+/*void MainWindow::on_votebox_item_change(QString item)
 {
     QStringList avaibleForVote;
     avaibleForVote.push_back(NOBODY);
@@ -136,7 +136,7 @@ void MainWindow::on_votebox_item_change(QString item)
     }
 
 }
-
+*/
 
 
 void MainWindow::changeSpeaker()

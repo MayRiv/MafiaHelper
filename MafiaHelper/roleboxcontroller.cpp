@@ -5,7 +5,9 @@
 RoleBoxController::RoleBoxController(QList<QComboBox *> roleBoxes, QList<Player *> players, QObject *parent) :
     QObject(parent)
 {
-    this->players    = players;
+    //this->playersList    = players;
+    for (QList<Player*>::iterator i = players.begin(); i != players.end(); i++)
+        this->players.push_back(*i);
     this->comboBoxes = roleBoxes;
     for(QList<QComboBox*>::iterator i = comboBoxes.begin(); i != comboBoxes.end(); i++)
         connect(*i,SIGNAL(currentTextChanged(QString)),this,SLOT(on_votebox_item_change(QString)));
