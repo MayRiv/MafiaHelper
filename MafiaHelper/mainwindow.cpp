@@ -46,7 +46,6 @@ MainWindow::MainWindow(QWidget *parent) :
         rolesComboBoxes.back()->setMinimumWidth(MIN_COMBOBOX_WIDTH);
         rolesComboBoxes.back()->addItems(avaibleRoles);
         rolesComboBoxes.back()->setFont(font);
-        //connect(rolesComboBoxes.back(),SIGNAL(currentTextChanged(QString)),this,SLOT(on_rolebox_item_change(QString)));
 
         votesComboBoxes.push_back(new QComboBox(this));
         votesComboBoxes.back()->setMinimumHeight(MIN_HEIGHT);
@@ -57,7 +56,6 @@ MainWindow::MainWindow(QWidget *parent) :
         for (int j=0;j<10;j++)
             votesComboBoxes.back()->setItemData(j,Qt::AlignHCenter, Qt::TextAlignmentRole);
 
-        connect(votesComboBoxes.back(),SIGNAL(currentTextChanged(QString)),this,SLOT(on_votebox_item_change(QString)));
 
         warningButtons.push_back(new WarningButton);
         warningButtons.back()->setMinimumHeight(MIN_HEIGHT);
@@ -96,6 +94,8 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->verticalLayout_6->addWidget(label);
         label->setMinimumHeight(MIN_HEIGHT);
     }
+    ui->pushButton_11->setMinimumHeight(MIN_HEIGHT);
+    ui->pushButton_15->setMinimumHeight(MIN_HEIGHT);
 }
 
 MainWindow::~MainWindow()
@@ -111,33 +111,6 @@ QList<Player*> MainWindow::shift(QList<Player*> l)
     temp.push_back(t);
     return temp;
 }
-
-/*void MainWindow::on_votebox_item_change(QString item)
-{
-    QStringList avaibleForVote;
-    avaibleForVote.push_back(NOBODY);
-
-    for (int i = 0; i < players.size(); i++)
-        if (players[i]->isAlive) avaibleForVote.push_back(QString("%1").arg(players[i]->getNumber()));
-
-    for (int i = 0; i < votesComboBoxes.size(); i++)
-        if (votesComboBoxes[i]->currentText() != NOBODY)
-            avaibleForVote.removeOne(votesComboBoxes[i]->currentText());
-
-    for (int i = 0; i < votesComboBoxes.size(); i++)
-    {
-            votesComboBoxes[i]->blockSignals(true);
-            QString currentText = votesComboBoxes[i]->currentText();
-            votesComboBoxes[i]->clear();
-            votesComboBoxes[i]->addItems(avaibleForVote);
-            if (currentText != NOBODY) votesComboBoxes[i]->addItem(currentText);
-            votesComboBoxes[i]->setCurrentText(currentText);
-            votesComboBoxes[i]->blockSignals(false);
-    }
-
-}
-*/
-
 
 void MainWindow::changeSpeaker()
 {
@@ -241,14 +214,7 @@ void MainWindow::afterNight()
     for (int i=1;i<=10;i++)
         if (players[i-1]->isAlive) avaibleForVote.push_back(QString("%1").arg(i));
 
-    for (int i=0;i<votesComboBoxes.size();i++)
-    {
-        votesComboBoxes[i]->blockSignals(true);
-        votesComboBoxes[i]->clear();
-        votesComboBoxes[i]->addItems(avaibleForVote);
-        votesComboBoxes[i]->setCurrentIndex(0);
-        votesComboBoxes[i]->blockSignals(false);
-    }
+    voteBoxController->setNobodyToAll();
 }
 
 void MainWindow::minusSecond()
@@ -298,8 +264,6 @@ void MainWindow::on_actionHide_Show_Roles_triggered()
 
 void MainWindow::on_actionRestart_triggered()
 {
-    qDebug() << "Wat";
-
     for (QList<Player*>::iterator i = players.begin(); i != players.end(); i++)
         delete (*i);
     players.clear();
@@ -311,16 +275,9 @@ void MainWindow::on_actionRestart_triggered()
         avaibleForVote.push_back(QString("%1").arg(i));
 
     roleBoxController->setEnableRoleComboBoxes(true);
-
+    voteBoxController->setNobodyToAll();
     for (int i = 0; i < 10; i++)
     {
-
-        votesComboBoxes[i]->setEnabled(true);
-        votesComboBoxes[i]->blockSignals(true);
-        votesComboBoxes[i]->clear();
-        votesComboBoxes[i]->addItems(avaibleForVote);
-        votesComboBoxes[i]->setCurrentIndex(0);
-        votesComboBoxes[i]->blockSignals(false);
         names[i]->setEnabled(true);
         names[i]->clear();
 
@@ -371,8 +328,6 @@ void MainWindow::revote(QList<int> rList)
 
 Player *MainWindow::getPlayerByNumber(int number)
 {
-    for( int i = 0; i < votesComboBoxes.size(); i++)
-        votesComboBoxes[i]->setEnabled(true);
     for (int i = 0; i < players.size(); i++)
         if (players[i]->getNumber() == number) return players[i];
 }

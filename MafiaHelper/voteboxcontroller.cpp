@@ -2,6 +2,7 @@
 #include <QComboBox>
 #include <QStringList>
 #include "player.h"
+extern QString NOBODY;
 VoteBoxController::VoteBoxController(QList<QComboBox *> comboBoxes, QList<Player *> players, QObject *parent) :
     QObject(parent)
 {
@@ -22,7 +23,7 @@ void VoteBoxController::setEnabledForAlivePlayers()
 void VoteBoxController::setNobodyToAll()
 {
     for(QList<QComboBox*>::iterator i = comboBoxes.begin(); i != comboBoxes.end(); i++)
-        (*i)->setCurrentText("Nobody");
+        (*i)->setCurrentText(NOBODY);
 }
 
 void VoteBoxController::setNominations(QList<int> revotingPlayers)
@@ -38,13 +39,13 @@ void VoteBoxController::setNominations(QList<int> revotingPlayers)
 void VoteBoxController::on_votebox_item_change(QString item)
 {
     QStringList avaibleForVote;
-    avaibleForVote.push_back("Nobody");
+    avaibleForVote.push_back(NOBODY);
 
     for (int i = 0; i < players.size(); i++)
         if (players[i]->isAlive) avaibleForVote.push_back(QString("%1").arg(players[i]->getNumber()));
 
     for (int i = 0; i < comboBoxes.size(); i++)
-        if (comboBoxes[i]->currentText() != "Nobody")
+        if (comboBoxes[i]->currentText() != NOBODY)
             avaibleForVote.removeOne(comboBoxes[i]->currentText());
 
     for (int i = 0; i < comboBoxes.size(); i++)
@@ -53,7 +54,7 @@ void VoteBoxController::on_votebox_item_change(QString item)
             QString currentText = comboBoxes[i]->currentText();
             comboBoxes[i]->clear();
             comboBoxes[i]->addItems(avaibleForVote);
-            if (currentText != "Nobody") comboBoxes[i]->addItem(currentText); //This also could be insterted in the right spot.
+            if (currentText != NOBODY) comboBoxes[i]->addItem(currentText); //This also could be insterted in the right spot.
             comboBoxes[i]->setCurrentText(currentText);
             comboBoxes[i]->blockSignals(false);
     }
