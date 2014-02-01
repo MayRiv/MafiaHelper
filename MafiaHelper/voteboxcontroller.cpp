@@ -34,6 +34,12 @@ void VoteBoxController::setNominations(QList<int> revotingPlayers)
     this->comboBoxes[revotingPlayers.back() - 1]->setCurrentText(QString("%1").arg(revotingPlayers.first()));
 }
 
+void VoteBoxController::setEnabled(bool enabled)
+{
+    for(QList<QComboBox*>::iterator i = comboBoxes.begin(); i != comboBoxes.end(); i++)
+        (*i)->setEnabled(enabled);
+}
+
 
 
 void VoteBoxController::on_votebox_item_change(QString item)

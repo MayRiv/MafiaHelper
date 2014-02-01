@@ -10,8 +10,12 @@ NightDialog::NightDialog(QList<Player*> playersList, QWidget *parent) :
     players = playersList;
     ui->comboBox->addItem("Nobody");
     ui->comboBox->setFont(QFont("Times",22));
-    for (int i=1;i<11;i++)
-        ui->comboBox->addItem(QString("%1").arg(i));
+    QList<int> dead;
+    for (int i = 0; i < 10; i++)
+         if (!players[i]->isAlive) dead.push_back(players[i]->getNumber());
+    for (int i = 1; i <= 10; i++)
+        if (!dead.contains(i)) ui->comboBox->addItem(QString("%1").arg(i));
+
     ui->comboBox->setCurrentIndex(0);
 
     this->setModal(true);

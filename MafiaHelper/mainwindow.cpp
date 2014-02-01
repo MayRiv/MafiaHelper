@@ -97,6 +97,11 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     ui->pushButton_11->setMinimumHeight(MIN_HEIGHT);
     ui->pushButton_15->setMinimumHeight(MIN_HEIGHT);
+
+    connect(roleBoxController,SIGNAL(rolesAreDefined()),this,SLOT(rolesAreDefined()));
+    voteBoxController->setEnabled(false);
+    ui->pushButton_15->setEnabled(false);
+    ui->pushButton_11->setEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -388,4 +393,13 @@ void MainWindow::handleMafiaAgreement()
     ui->pushButton_11->setText("Start");
     disconnect(this,SIGNAL(timeIsLeft()),0,0);
     connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+}
+
+void MainWindow::rolesAreDefined()
+{
+    voteBoxController->setEnabled(true);
+    ui->pushButton_15->setEnabled(true);
+    ui->pushButton_11->setEnabled(true);
+    ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Mafia's negotiating.</span></p></body></html>"));
+
 }

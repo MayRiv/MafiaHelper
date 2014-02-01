@@ -65,12 +65,14 @@ void RoleBoxController::on_votebox_item_change(QString item)
         comboBoxes[i]->blockSignals(false);
     }
 
-    if (!mafiaCount && !sherifCount && !donCount)
+    if (!mafiaCount && !sherifCount && !donCount)   
+    {
         for (int i = 0; i < comboBoxes.size(); i++)
         {
             comboBoxes[i]->blockSignals(true);
             if (comboBoxes[i]->currentText().isEmpty()) comboBoxes[i]->setCurrentText("Citizen");
             comboBoxes[i]->blockSignals(false);
         }
-
+        emit rolesAreDefined();
+    }
 }

@@ -13,7 +13,7 @@ public:
     void setNobodyToAll();
     void setNominations(QList<int> revotingPlayers);
     //QList<int> getNominations();
-
+    void setEnabled(bool enabled);
 signals:
 
 public slots:

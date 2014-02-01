@@ -12,6 +12,8 @@ public:
     void setVisibleRoleComboBoxes(bool visible);
     void setEnableRoleComboBoxes(bool enabled);
     QList<QComboBox*> getRoleComboBoxes(){return comboBoxes;}
+signals:
+    void rolesAreDefined();
 public slots:
 private:
     QList<QComboBox*> comboBoxes;
