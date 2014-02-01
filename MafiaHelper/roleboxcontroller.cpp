@@ -25,6 +25,12 @@ void RoleBoxController::setEnableRoleComboBoxes(bool enabled)
         comboBoxes[i]->setEnabled(enabled);
 }
 
+void RoleBoxController::clearAll()
+{
+    for (int i = 0; i < comboBoxes.size(); i++)
+        comboBoxes[i]->setCurrentText("");
+}
+
 void RoleBoxController::on_votebox_item_change(QString item)
 {
     int mafiaCount   = 2;

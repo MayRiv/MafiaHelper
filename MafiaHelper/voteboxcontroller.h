@@ -14,6 +14,7 @@ public:
     void setNominations(QList<int> revotingPlayers);
     //QList<int> getNominations();
     void setEnabled(bool enabled);
+    void setEnabledVoteBox(int number);
 signals:
 
 public slots:

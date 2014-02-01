@@ -40,6 +40,12 @@ void VoteBoxController::setEnabled(bool enabled)
         (*i)->setEnabled(enabled);
 }
 
+void VoteBoxController::setEnabledVoteBox(int number)
+{
+    for (int i = 0; i < comboBoxes.size(); i++)
+        if (i  == number - 1) comboBoxes[i]->setEnabled(true);
+}
+
 
 
 void VoteBoxController::on_votebox_item_change(QString item)

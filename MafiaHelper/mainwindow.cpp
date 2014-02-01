@@ -130,8 +130,12 @@ void MainWindow::changeSpeaker()
     while(currentSpeaker != players.end()  && !(*currentSpeaker)->isAlive)
         currentSpeaker++;
 
+    voteBoxController->setEnabled(false);
+
+
     if (currentSpeaker != players.end())
     {
+        voteBoxController->setEnabledVoteBox((*currentSpeaker)->getNumber());
         ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
     }
     else
@@ -206,21 +210,14 @@ void MainWindow::afterNight()
     disconnect(this,SIGNAL(timeIsLeft()),0,0);
     connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
 
-    for (int i = 0; i < players.size(); i++)
-        if (players[i]->isAlive) votesComboBoxes[players[i]->getNumber() - 1]->setEnabled(true);
+
     players = shift(players);
+    voteBoxController->setEnabledVoteBox(players.first()->getNumber());
 
     currentSpeaker=players.begin();
     while(currentSpeaker != players.end()  && !(*currentSpeaker)->isAlive )
         currentSpeaker++;
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
-
-    QStringList avaibleForVote;
-    avaibleForVote.push_back(NOBODY);
-    for (int i=1;i<=10;i++)
-        if (players[i-1]->isAlive) avaibleForVote.push_back(QString("%1").arg(i));
-
-    voteBoxController->setNobodyToAll();
 }
 
 void MainWindow::minusSecond()
@@ -281,6 +278,7 @@ void MainWindow::on_actionRestart_triggered()
         avaibleForVote.push_back(QString("%1").arg(i));
 
     roleBoxController->setEnableRoleComboBoxes(true);
+    roleBoxController->clearAll();
     voteBoxController->setNobodyToAll();
     for (int i = 0; i < 10; i++)
     {
@@ -322,8 +320,6 @@ void MainWindow::revote(QList<int> rList)
                 notClean = true;
         if (!notClean) votesComboBoxes[i]->setCurrentText(NOBODY);
     }
-    //TO DO set comboboxes of condemned to each other pointer.
-
 
     currentSpeaker = players.begin();
     connect(this,SIGNAL(lastPlayerEnded()),this,SLOT(switch_revotinglist_and_players()));
@@ -353,6 +349,7 @@ void MainWindow::lastWordAfterDay(int player)
 
 void MainWindow::lastWordAfterNight(int player)
 {
+    voteBoxController->setNobodyToAll();
     if (player != -1)
     {
         disconnect(this,SIGNAL(timeIsLeft()),0,0);
@@ -393,13 +390,12 @@ void MainWindow::handleMafiaAgreement()
     ui->pushButton_11->setText("Start");
     disconnect(this,SIGNAL(timeIsLeft()),0,0);
     connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+    voteBoxController->setEnabledVoteBox(1);
 }
 
 void MainWindow::rolesAreDefined()
 {
-    voteBoxController->setEnabled(true);
     ui->pushButton_15->setEnabled(true);
     ui->pushButton_11->setEnabled(true);
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Mafia's negotiating.</span></p></body></html>"));
-
 }
