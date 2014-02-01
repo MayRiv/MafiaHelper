@@ -59,6 +59,7 @@ private slots:
     void lastWordAfterNight(int);
     void on_actionExit_triggered();
     void on_actionPrevious_Speaker_triggered();
+    void handleMafiaAgreement();
     //void on_actionAbout_triggered();
 };
 

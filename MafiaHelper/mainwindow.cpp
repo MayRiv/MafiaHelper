@@ -25,7 +25,8 @@ MainWindow::MainWindow(QWidget *parent) :
     timer = new QTimer(this);
     timer->setInterval(1000);
     connect(timer,SIGNAL(timeout()),this,SLOT(minusSecond()));
-    connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+    //connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+    connect(this,SIGNAL(timeIsLeft()),this,SLOT(handleMafiaAgreement()));
     QStringList avaibleRoles;
     avaibleRoles.push_back("");
     avaibleRoles.push_back("Citizen");
@@ -375,4 +376,16 @@ void MainWindow::on_actionPrevious_Speaker_triggered()
     if (currentSpeaker != players.begin()) currentSpeaker--;
     secondsLeft = 59;
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
+}
+
+void MainWindow::handleMafiaAgreement()
+{
+    secondsLeft = 60;
+    ui->label_5->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Time left: %1</span></p>").arg(secondsLeft));
+    ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
+    timer->stop();
+    pause = true;
+    ui->pushButton_11->setText("Start");
+    disconnect(this,SIGNAL(timeIsLeft()),0,0);
+    connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
 }
