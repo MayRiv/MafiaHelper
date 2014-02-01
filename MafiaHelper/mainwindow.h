@@ -62,6 +62,7 @@ private slots:
     void handleMafiaAgreement();
     void rolesAreDefined();
     //void on_actionAbout_triggered();
+    bool isEndOfTheGame(QList<Player*> l);
 };
 
 #endif // MAINWINDOW_H

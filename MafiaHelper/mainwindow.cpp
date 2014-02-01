@@ -207,16 +207,21 @@ void MainWindow::night()
 
 void MainWindow::afterNight()
 {
+    if (isEndOfTheGame(players))
+    {
+        on_actionRestart_triggered();
+        return;
+    }
     disconnect(this,SIGNAL(timeIsLeft()),0,0);
     connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
 
-
     players = shift(players);
-    voteBoxController->setEnabledVoteBox(players.first()->getNumber());
 
     currentSpeaker=players.begin();
     while(currentSpeaker != players.end()  && !(*currentSpeaker)->isAlive )
         currentSpeaker++;
+
+    voteBoxController->setEnabledVoteBox((*currentSpeaker)->getNumber());
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
 }
 
@@ -292,8 +297,13 @@ void MainWindow::on_actionRestart_triggered()
     }
     currentSpeaker = players.begin();
 
-    ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
-
+    //ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
+    ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Enter roles.</span></p></body></html>"));
+    ui->pushButton_11->setEnabled(false);
+    ui->pushButton_15->setEnabled(false);
+    voteBoxController->setEnabled(false);
+    disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
+    connect(this,SIGNAL(timeIsLeft()),this,SLOT(handleMafiaAgreement()));
 }
 
 void MainWindow::switch_revotinglist_and_players()
@@ -398,4 +408,19 @@ void MainWindow::rolesAreDefined()
     ui->pushButton_15->setEnabled(true);
     ui->pushButton_11->setEnabled(true);
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Mafia's negotiating.</span></p></body></html>"));
+}
+
+bool MainWindow::isEndOfTheGame(QList<Player *> l)
+{
+    int playersCount = 0;
+    int mafiaCount   = 0;
+    for(QList<Player*>::iterator i = l.begin(); i != l.end(); i++)
+    {
+        if ((*i)->isAlive) playersCount++;
+        if ((*i)->isAlive &&
+                ((*i)->getRole() == "Mafia" || (*i)->getRole() == "Don")) mafiaCount++;
+    }
+    qDebug() << "Player's amount " << playersCount << " and mafia's amount " << mafiaCount;
+    if (!mafiaCount || mafiaCount >= playersCount  - mafiaCount) return true;
+    else return false;
 }
