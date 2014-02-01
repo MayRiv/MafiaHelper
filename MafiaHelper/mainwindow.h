@@ -38,7 +38,7 @@ private:
     VoteBoxController* voteBoxController;
     RoleBoxController* roleBoxController;
     void setSeconds(int seconds);
-    QList<QComboBox*> votesComboBoxes;
+    //QList<QComboBox*> votesComboBoxes;
 
 private slots:
     QList<Player*> shift(QList<Player*> l);

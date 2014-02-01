@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
         avaibleForVote.push_back(QString("%1").arg(i));
 
     QList<QComboBox*> rolesComboBoxes;
+    QList<QComboBox*> votesComboBoxes;
     for (int i=0;i<10;i++)
     {
         rolesComboBoxes.push_back(new QComboBox(this));
@@ -162,13 +163,7 @@ void MainWindow::on_pushButton_11_clicked()
 
 void MainWindow::afterDay()
 {
-    QList<int> votes;
-
-    for (int i = 0; i < players.size(); i++)
-        if (votesComboBoxes[players[i]->getNumber() - 1]->currentText() != NOBODY)
-        {
-            votes.push_back(votesComboBoxes[players[i]->getNumber() - 1]->currentText().toInt());
-        }
+    QList<int> votes = voteBoxController->getNominations();
     if (!votes.empty() && votes.size() != 1)
     {
         VoteDialog* d = new VoteDialog(players,votes,this);
@@ -293,7 +288,7 @@ void MainWindow::on_actionRestart_triggered()
         warningButtons[i]->setEnabled(true);
         warningButtons[i]->removeAllWarnings();
 
-        players.push_back(new Player(roleBoxController->getRoleComboBoxes()[i],votesComboBoxes[i],names[i],warningButtons[i], i + 1));
+        players.push_back(new Player(roleBoxController->getRoleComboBoxes()[i],this->voteBoxController->getVoteComboBoxes()[i],names[i],warningButtons[i], i + 1));
     }
     currentSpeaker = players.begin();
 
@@ -321,15 +316,7 @@ void MainWindow::revote(QList<int> rList)
         revotingPlayers.push_back(getPlayerByNumber(rList[i]));
     switch_revotinglist_and_players();
 
-    for( int i = 0; i < votesComboBoxes.size(); i++)
-    {
-        bool notClean = false;
-        votesComboBoxes[i]->setEnabled(false);
-        for (int j = 0; j < rList.size(); j++)
-            if ((votesComboBoxes[i]->currentText() == NOBODY) || votesComboBoxes[i]->currentText() == QString("%1").arg(rList[j]))
-                notClean = true;
-        if (!notClean) votesComboBoxes[i]->setCurrentText(NOBODY);
-    }
+    voteBoxController->setNominations(rList);
 
     currentSpeaker = players.begin();
     connect(this,SIGNAL(lastPlayerEnded()),this,SLOT(switch_revotinglist_and_players()));

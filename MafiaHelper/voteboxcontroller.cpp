@@ -34,6 +34,17 @@ void VoteBoxController::setNominations(QList<int> revotingPlayers)
     this->comboBoxes[revotingPlayers.back() - 1]->setCurrentText(QString("%1").arg(revotingPlayers.first()));
 }
 
+QList<int> VoteBoxController::getNominations()
+{
+    QList<int> votes;
+    for (int i = 0; i < players.size(); i++)
+        if (comboBoxes[players[i]->getNumber() - 1]->currentText() != NOBODY)
+        {
+           votes.push_back(comboBoxes[players[i]->getNumber() - 1]->currentText().toInt());
+        }
+    return votes;
+}
+
 void VoteBoxController::setEnabled(bool enabled)
 {
     for(QList<QComboBox*>::iterator i = comboBoxes.begin(); i != comboBoxes.end(); i++)

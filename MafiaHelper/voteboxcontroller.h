@@ -12,7 +12,7 @@ public:
     void setEnabledForAlivePlayers();
     void setNobodyToAll();
     void setNominations(QList<int> revotingPlayers);
-    //QList<int> getNominations();
+    QList<int> getNominations();
     void setEnabled(bool enabled);
     void setEnabledVoteBox(int number);
 signals:
