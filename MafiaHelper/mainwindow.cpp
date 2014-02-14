@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
     timer = new QTimer(this);
     timer->setInterval(1000);
     connect(timer,SIGNAL(timeout()),this,SLOT(minusSecond()));
-    //connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
     connect(this,SIGNAL(timeIsLeft()),this,SLOT(handleMafiaAgreement()));
     QStringList avaibleRoles;
     avaibleRoles.push_back("");
@@ -90,7 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
     wasRevoting = false;
     roleBoxController = new RoleBoxController(rolesComboBoxes,players,this);
     voteBoxController = new VoteBoxController(votesComboBoxes,players,this);
-    logger            = new Logger(this);
+    logger            = new Logger("log.txt",players,this);
     for (int i = 1; i <= 10; i++)
     {
         QLabel* label = new QLabel(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1</span></p>").arg(i));
@@ -209,16 +208,26 @@ void MainWindow::afterNight()
 {
     if (isEndOfTheGame(players))
     {
-        on_actionRestart_triggered();
 
+        bool mafiaWon = false;
+        for(QList<Player*>::iterator i = players.begin(); i != players.end(); i++)
+        {
+            if ((*i)->isAlive &&
+                    ((*i)->getRole() == "Mafia" || (*i)->getRole() == "Don"))
+                mafiaWon = true;
+        }
+        logger->setMafiaWon(mafiaWon);
+        logger->writeLog();
+        on_actionRestart_triggered();
         return;
+
     }
     disconnect(this,SIGNAL(timeIsLeft()),0,0);
     connect(this,SIGNAL(timeIsLeft()),this,SLOT(changeSpeaker()));
 
     players = shift(players);
 
-    currentSpeaker=players.begin();
+    currentSpeaker = players.begin();
     while(currentSpeaker != players.end()  && !(*currentSpeaker)->isAlive )
         currentSpeaker++;
 
@@ -334,6 +343,7 @@ Player *MainWindow::getPlayerByNumber(int number)
 {
     for (int i = 0; i < players.size(); i++)
         if (players[i]->getNumber() == number) return players[i];
+    return NULL;
 }
 
 void MainWindow::lastWordAfterDay(QList<int> condemned)
@@ -353,9 +363,6 @@ void MainWindow::lastWordAfterDay(QList<int> condemned)
     }
     else night();
 }
-
-
-
 
 void MainWindow::on_pushButton_15_clicked()
 {
@@ -393,7 +400,10 @@ void MainWindow::rolesAreDefined()
 {
     ui->pushButton_15->setEnabled(true);
     ui->pushButton_11->setEnabled(true);
+    for (int i = 0; i < players.size(); i++)
+        players[i]->setRole(roleBoxController->getRoleComboBoxes()[i]->currentText());
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Mafia's negotiating.</span></p></body></html>"));
+
 }
 
 bool MainWindow::isEndOfTheGame(QList<Player *> l)

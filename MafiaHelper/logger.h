@@ -3,11 +3,15 @@
 
 #include <QObject>
 #include <QPair>
+#include <QFile>
+#include "player.h"
 class Logger : public QObject
 {
     Q_OBJECT
 public:
-    explicit Logger(QObject *parent = 0);
+    explicit Logger(QString pathToLogFile,QList<Player*> players,QObject *parent = 0);
+    void writeLog();
+    void setPlayers(QList<Player*> l);
     void addNominations(QList<QPair<int,int> > nominationsForDay);
     void addCondemned(QList<int> condemned);
     void addDonCheck(int);
@@ -18,6 +22,8 @@ signals:
 
 public slots:
 private:
+    QFile                          logFile;
+    QList<Player*>                 players;
     QList<QList<QPair<int,int> > > nominations;
     QList<QList<int> >             condemned;
     QList<int>                     nightVictims;
