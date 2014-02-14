@@ -28,6 +28,7 @@ private:
 
 signals:
     void killed(int);
+    void playersWereCondemned(QList<int>);
     void revoting(QList<int>);
 private slots:
     void voting(QString number);

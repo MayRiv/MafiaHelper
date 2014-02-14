@@ -12,6 +12,7 @@ class WarningButton;
 class Player;
 class VoteBoxController;
 class RoleBoxController;
+class Logger;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -37,8 +38,8 @@ private:
     bool pause;
     VoteBoxController* voteBoxController;
     RoleBoxController* roleBoxController;
+    Logger* logger;
     void setSeconds(int seconds);
-    //QList<QComboBox*> votesComboBoxes;
 
 private slots:
     QList<Player*> shift(QList<Player*> l);
@@ -55,14 +56,14 @@ private slots:
     void revote(QList<int>);
     Player* getPlayerByNumber(int number);
     void on_pushButton_15_clicked();
-    void lastWordAfterDay(int);
-    void lastWordAfterNight(int);
+    void lastWordAfterDay(QList<int> condemned);
     void on_actionExit_triggered();
     void on_actionPrevious_Speaker_triggered();
     void handleMafiaAgreement();
     void rolesAreDefined();
-    //void on_actionAbout_triggered();
     bool isEndOfTheGame(QList<Player*> l);
+    void lastWordAfterNight(int killed,int donCheck,int sherifCheck);
+
 };
 
 #endif // MAINWINDOW_H

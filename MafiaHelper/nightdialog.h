@@ -16,7 +16,7 @@ public:
     ~NightDialog();
 signals:
     void killed(int);
-
+    void nightEnded(int kiled, int donChecked, int sherifChecked);
 private slots:
     void on_pushButton_clicked();
 

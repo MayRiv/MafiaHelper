@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     player.cpp \
     killallrevoting.cpp \
     voteboxcontroller.cpp \
-    roleboxcontroller.cpp
+    roleboxcontroller.cpp \
+    logger.cpp
 
 HEADERS  += mainwindow.h \
     nightdialog.h \
@@ -30,7 +31,8 @@ HEADERS  += mainwindow.h \
     killallrevoting.h \
     voteboxcontroller.h \
     roleboxcontroller.h \
-    Constants.h
+    Constants.h \
+    logger.h
 
 FORMS    += mainwindow.ui \
     nightdialog.ui \

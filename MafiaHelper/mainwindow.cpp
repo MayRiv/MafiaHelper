@@ -14,6 +14,7 @@
 #include "Constants.h"
 #include "roleboxcontroller.h"
 #include "voteboxcontroller.h"
+#include "logger.h"
 QString NOBODY = "";
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -89,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
     wasRevoting = false;
     roleBoxController = new RoleBoxController(rolesComboBoxes,players,this);
     voteBoxController = new VoteBoxController(votesComboBoxes,players,this);
-
+    logger            = new Logger(this);
     for (int i = 1; i <= 10; i++)
     {
         QLabel* label = new QLabel(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1</span></p>").arg(i));
@@ -163,12 +164,14 @@ void MainWindow::on_pushButton_11_clicked()
 
 void MainWindow::afterDay()
 {
+
     QList<int> votes = voteBoxController->getNominations();
+    logger->addNominations(voteBoxController->getPairNominationsAndNominators());
     if (!votes.empty() && votes.size() != 1)
     {
         VoteDialog* d = new VoteDialog(players,votes,this);
-        connect(d,SIGNAL(killed(int)),this,SLOT(lastWordAfterDay(int)));
         connect(d,SIGNAL(revoting(QList<int>)),this,SLOT(revote(QList<int>)));
+        connect(d,SIGNAL(playersWereCondemned(QList<int>)),this,SLOT(lastWordAfterDay(QList<int>)));
         d->showFullScreen();
     }
     else
@@ -179,7 +182,9 @@ void MainWindow::afterDay()
                 if (players.at(i)->getNumber() == votes.first())
                 {
                     players.at(i)->die();
-                    lastWordAfterDay(players.at(i)->getNumber());
+                    QList<int> l;
+                    l.push_back(players[i]->getNumber());
+                    lastWordAfterDay(l);
                 }
         }
         else
@@ -196,7 +201,7 @@ void MainWindow::night()
     disconnect(this,SIGNAL(timeIsLeft()),this,SLOT(night()));
 
     NightDialog *d = new NightDialog(players,this);
-    connect(d, SIGNAL(killed(int)),this,SLOT(lastWordAfterNight(int)));
+    connect(d,SIGNAL(nightEnded(int,int,int)),this,SLOT(lastWordAfterNight(int,int,int)));
     d->showFullScreen();
 }
 
@@ -205,6 +210,7 @@ void MainWindow::afterNight()
     if (isEndOfTheGame(players))
     {
         on_actionRestart_triggered();
+
         return;
     }
     disconnect(this,SIGNAL(timeIsLeft()),0,0);
@@ -292,7 +298,6 @@ void MainWindow::on_actionRestart_triggered()
     }
     currentSpeaker = players.begin();
 
-    //ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">Enter roles.</span></p></body></html>"));
     ui->pushButton_11->setEnabled(false);
     ui->pushButton_15->setEnabled(false);
@@ -331,34 +336,26 @@ Player *MainWindow::getPlayerByNumber(int number)
         if (players[i]->getNumber() == number) return players[i];
 }
 
-void MainWindow::lastWordAfterDay(int player)
+void MainWindow::lastWordAfterDay(QList<int> condemned)
 {
-    if (player != -1)
+    for(int i = 0; i < condemned.size(); i++)
+        qDebug() << condemned[i] << " was condemned.";
+    qDebug() << "At this day.";
+
+    logger->addCondemned(condemned);
+    if (condemned.size() == 1)
     {
         disconnect(this,SIGNAL(timeIsLeft()),0,0);
         connect(this,SIGNAL(timeIsLeft()),this,SLOT(night()));
 
         secondsLeft = 59;
-        ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(player));
+        ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(condemned.first()));
     }
     else night();
 }
 
-void MainWindow::lastWordAfterNight(int player)
-{
-    voteBoxController->setNobodyToAll();
-    if (player != -1)
-    {
-        disconnect(this,SIGNAL(timeIsLeft()),0,0);
-        connect(this,SIGNAL(timeIsLeft()),this,SLOT(afterNight()));
-        secondsLeft = 59;
-        ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(player));
-    }
-    else
-    {
-        afterNight();
-    }
-}
+
+
 
 void MainWindow::on_pushButton_15_clicked()
 {
@@ -372,9 +369,11 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::on_actionPrevious_Speaker_triggered()
 {
+    voteBoxController->setEnabled(false);
     if (currentSpeaker != players.begin()) currentSpeaker--;
     secondsLeft = 59;
     ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg((*currentSpeaker)->getNumber()));
+    voteBoxController->setEnabledVoteBox((*currentSpeaker)->getNumber());
 }
 
 void MainWindow::handleMafiaAgreement()
@@ -411,3 +410,23 @@ bool MainWindow::isEndOfTheGame(QList<Player *> l)
     if (!mafiaCount || mafiaCount >= playersCount  - mafiaCount) return true;
     else return false;
 }
+
+void MainWindow::lastWordAfterNight(int victim, int donCheck, int sherifCheck)
+{
+    voteBoxController->setNobodyToAll();
+    logger->addKill(victim);
+    logger->addDonCheck(donCheck);
+    logger->addSherifCheck(sherifCheck);
+    if (victim != -1)
+    {
+        disconnect(this,SIGNAL(timeIsLeft()),0,0);
+        connect(this,SIGNAL(timeIsLeft()),this,SLOT(afterNight()));
+        secondsLeft = 59;
+        ui->label_6->setText(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1 player is speaking</span></p></body></html>").arg(victim));
+    }
+    else
+    {
+        afterNight();
+    }
+}
+

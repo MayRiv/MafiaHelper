@@ -152,8 +152,12 @@ void VoteDialog::on_pushButtonAccept_clicked()
         for (int i = 0; i < players.size(); i++)
             if (players.at(i)->getNumber() == condemned[0].first)
             {
+
                 players.at(i)->die();
-                emit killed(players.at(i)->getNumber());
+                //emit killed(players.at(i)->getNumber());
+                QList<int> condemned;
+                condemned.push_back(players[i]->getNumber());
+                emit playersWereCondemned(condemned);
             }
     }
     this->accept();
@@ -173,15 +177,17 @@ void VoteDialog::killThemAll()
     for (int i = 1; i < condemned.size() && condemned[i].second == condemned[0].second; i++)
         playersForRevoting.push_back(condemned[i].first);
 
+
     for (int i = 0; i < players.size(); i++)
         if (playersForRevoting.contains(players[i]->getNumber())) players[i]->die();
-    emit killed(-1);
+    emit playersWereCondemned(playersForRevoting);
     this->close();
 }
 
 void VoteDialog::leaveThemAlive()
 {
-    emit killed(-1);
+    QList<int> l;
+    emit playersWereCondemned(l);
     this->close();
 }
 

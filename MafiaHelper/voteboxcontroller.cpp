@@ -57,6 +57,16 @@ void VoteBoxController::setEnabledVoteBox(int number)
         if (i  == number - 1) comboBoxes[i]->setEnabled(true);
 }
 
+void VoteBoxController::clearNominations()
+{
+    nominations.clear();
+}
+
+QList<QPair<int,int> > VoteBoxController::getPairNominationsAndNominators()
+{
+    return nominations;
+}
+
 
 
 void VoteBoxController::on_votebox_item_change(QString item)
@@ -82,4 +92,14 @@ void VoteBoxController::on_votebox_item_change(QString item)
             comboBoxes[i]->blockSignals(false);
     }
 
+    int playerWhoNominated  = -1;
+    for (int i = 0; i < comboBoxes.size(); i++)
+    {
+        if (comboBoxes[i]->isEnabled()) playerWhoNominated = i + 1;
+    }
+    int playerWhoIsNominated = item.toInt();
+    QPair<int,int> nomination = QPair<int,int>(playerWhoNominated,playerWhoIsNominated);
+    for(int i = 0; i < nominations.size(); i++)
+        if (nominations[i].first == playerWhoNominated) nominations.removeAt(i);
+    nominations.push_back(nomination);
 }
