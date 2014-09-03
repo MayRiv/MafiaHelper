@@ -15,6 +15,8 @@
 #include "roleboxcontroller.h"
 #include "voteboxcontroller.h"
 #include "logger.h"
+#include <QTime>
+#include <QDate>
 QString NOBODY = "";
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -89,7 +91,11 @@ MainWindow::MainWindow(QWidget *parent) :
     wasRevoting = false;
     roleBoxController = new RoleBoxController(rolesComboBoxes,players,this);
     voteBoxController = new VoteBoxController(votesComboBoxes,players,this);
-    logger            = new Logger("log.txt",players,this);
+    QTime Ti; Ti=QTime::currentTime();
+    QDate D; D=QDate::currentDate();
+    //QString path = D.toString().append("_").append(Ti.toString()).append(".txt");
+    QString path = "log.txt";
+    logger            = new Logger(path,players,this);
     for (int i = 1; i <= 10; i++)
     {
         QLabel* label = new QLabel(QString("<html><head/><body><p><span style=\" font-size:22pt;\">%1</span></p>").arg(i));

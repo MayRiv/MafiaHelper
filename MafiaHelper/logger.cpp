@@ -1,6 +1,7 @@
 #include "logger.h"
 #include <QFile>
 #include <QTextStream>
+#include <QDebug>
 Logger::Logger(QString pathToLogFile,QList<Player*> players, QObject *parent) :
     QObject(parent),logFile(pathToLogFile)
 {
@@ -10,14 +11,17 @@ Logger::Logger(QString pathToLogFile,QList<Player*> players, QObject *parent) :
 
 void Logger::writeLog()
 {
-    logFile.open(QIODevice::WriteOnly);
+    if(!logFile.open(QIODevice::WriteOnly | QIODevice::Append))
+        qDebug() << "Fail";
     QTextStream stream(&logFile);
+    stream << "\r\n\r\n";
     using namespace std;
     stream  << "Players:\r\n";
     for (int i = 0; i < players.size(); i++)
         stream << QString("%1").arg(players[i]->getNumber()) << " "
                << players[i]->getName() << " "
-               << players[i]->getRole() << "\r\n";
+               << players[i]->getRole() << "Warnings: "
+               << players[i]->getWarnings() << "\r\n";
 //TODO
     if (mafiaWon) stream << "Mafia won\r\n";
     else stream << "City won\r\n";
